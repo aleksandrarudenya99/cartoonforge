@@ -1,0 +1,29 @@
+{
+  "slug": "cel-anime-1985",
+  "name": "Cel Anime",
+  "era": "1980s",
+  "group": "Anime",
+  "tagline": "Hand-painted cels, airbrushed sunset, striped retro sun, glowing city lights.",
+  "tags": [
+    "anime",
+    "retro",
+    "city pop",
+    "neon"
+  ],
+  "music": {
+    "genre": "citypop",
+    "bpm": 104,
+    "fx": "vhs"
+  },
+  "voice": {
+    "speed": 1.0,
+    "fx": "vhs"
+  },
+  "subtitle": "a retro cel anime",
+  "showcase": {
+    "gif": [
+      4.3,
+      3.4
+    ]
+  }
+}

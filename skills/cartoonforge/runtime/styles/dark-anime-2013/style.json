@@ -1,0 +1,29 @@
+{
+  "slug": "dark-anime-2013",
+  "name": "Dark Anime Action",
+  "era": "2010s",
+  "group": "Anime",
+  "tagline": "Grim action anime: steel palette, red accent, hatched shadows, embers, impact frames.",
+  "tags": [
+    "anime",
+    "action",
+    "dark",
+    "dramatic"
+  ],
+  "music": {
+    "genre": "epic",
+    "bpm": 100,
+    "fx": "cinema"
+  },
+  "voice": {
+    "speed": 1.0,
+    "fx": "hero"
+  },
+  "subtitle": "a dark action anime",
+  "showcase": {
+    "gif": [
+      4.3,
+      3.4
+    ]
+  }
+}

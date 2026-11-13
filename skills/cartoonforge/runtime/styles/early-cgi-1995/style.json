@@ -1,0 +1,29 @@
+{
+  "slug": "early-cgi-1995",
+  "name": "Early CGI Feature",
+  "era": "1995–2001",
+  "group": "Feature",
+  "tagline": "Glossy plastic, hard specular highlights, toy-scale room, crisp shadows.",
+  "tags": [
+    "3d look",
+    "toys",
+    "glossy",
+    "90s cgi"
+  ],
+  "music": {
+    "genre": "cgi",
+    "bpm": 116,
+    "fx": "broadcast"
+  },
+  "voice": {
+    "speed": 1.02,
+    "fx": "tv"
+  },
+  "subtitle": "an early CGI feature",
+  "showcase": {
+    "gif": [
+      4.3,
+      3.4
+    ]
+  }
+}

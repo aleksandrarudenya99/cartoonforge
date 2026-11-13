@@ -3,8 +3,11 @@
  * Build the GitHub showcase from the style packs.
  *
  *   npm run showcase                 render every style's example, refresh gallery + Pages
- *   npm run showcase -- --no-render  only rebuild README gallery and docs/ from existing renders
+ *   npm run showcase -- --no-render  re-make previews from existing renders (renders only missing ones)
+ *   npm run showcase -- --gallery-only   rebuild README gallery + docs/ only, no rendering at all
  *   npm run showcase -- rubber-hose-1930   just this style
+ *
+ * Example films use a test character; real films use the user's own characters.
  *
  * For each style in skills/cartoonforge/runtime/styles/<slug>/:
  *   examples/<slug>/            a Pip film in that style (scaffolded if missing)
@@ -21,6 +24,7 @@ const SKILL = "skills/cartoonforge";
 const STYLES = join(SKILL, "runtime", "styles");
 const argv = process.argv.slice(2);
 const noRender = argv.includes("--no-render");
+const galleryOnly = argv.includes("--gallery-only"); // just rebuild README + docs/ from existing media
 const only = argv.filter((a) => !a.startsWith("--"));
 
 const run = (cmd, args) => {
@@ -29,22 +33,13 @@ const run = (cmd, args) => {
 };
 const ff = (...args) => run("ffmpeg", ["-loglevel", "error", "-y", ...args]);
 
-// styles still to come — shown as "coming soon" tiles
-const PLANNED = [
-  { name: "UPA Modern", era: "1950s", tagline: "Flat graphic shapes, bold colour, limited animation." },
-  { name: "Paper Cut-out", era: "1990s", tagline: "Pinned paper parts, construction-paper textures." },
-  { name: "Cel Anime", era: "1980s", tagline: "Cel shading, speed lines, dramatic framing." },
-  { name: "Comic Halftone", era: "1960s", tagline: "Ben-Day dots, misregistered print, bold panels." },
-  { name: "Claymation", era: "stop-motion", tagline: "Squishy clay, thumbprints, 12 fps wobble." },
-];
-
 const styles = readdirSync(STYLES)
   .filter((s) => existsSync(join(STYLES, s, "style.json")))
   .map((s) => JSON.parse(readFileSync(join(STYLES, s, "style.json"), "utf8")));
 
 mkdirSync("docs/media", { recursive: true });
 
-for (const st of styles) {
+for (const st of galleryOnly ? [] : styles) {
   if (only.length && !only.includes(st.slug)) continue;
   const ex = join("examples", st.slug);
   if (!existsSync(join(ex, "index.html"))) {
@@ -69,8 +64,9 @@ const repo = "https://aleksandrarudenya99.github.io/cartoonforge";
 const ready = styles.filter((s) => existsSync(`docs/media/${s.slug}.gif`));
 const cell = (s) =>
   `<td align="center" width="33%"><a href="${repo}/#${s.slug}"><img src="docs/media/${s.slug}.gif" width="200" alt="${s.name}"></a><br><b>${s.name}</b> · ${s.era}<br><sub>${s.tagline}</sub></td>`;
-const soon = (p) => `<td align="center" width="33%"><br><br><b>${p.name}</b> · ${p.era}<br><sub>${p.tagline}</sub><br><sub><i>coming soon</i></sub><br><br></td>`;
-const cells = [...ready.map(cell), ...PLANNED.map(soon)];
+const pending = styles.filter((s) => !ready.includes(s));
+const soon = (p) => `<td align="center" width="33%"><br><br><b>${p.name}</b> · ${p.era}<br><sub>${p.tagline}</sub><br><sub><i>preview coming soon</i></sub><br><br></td>`;
+const cells = [...ready.map(cell), ...pending.map(soon)];
 let rows = "";
 for (let i = 0; i < cells.length; i += 3) rows += `<tr>\n${cells.slice(i, i + 3).join("\n")}\n</tr>\n`;
 const gallery = `<!-- gallery:start -->\n<table>\n${rows}</table>\n\n▶ **Watch them with sound:** ${repo}\n<!-- gallery:end -->`;
@@ -78,8 +74,8 @@ const readme = readFileSync("README.md", "utf8");
 writeFileSync("README.md", readme.replace(/<!-- gallery:start -->[\s\S]*<!-- gallery:end -->/, gallery));
 
 // ------------------------------------------------------------- Pages site
-const data = { styles: ready, planned: PLANNED };
+const data = { styles: ready, planned: pending };
 const tpl = readFileSync("scripts/site.template.html", "utf8");
 writeFileSync("docs/index.html", tpl.replace("/*DATA*/null", JSON.stringify(data)));
 writeFileSync("docs/.nojekyll", "");
-console.log(`✓ README gallery + docs/index.html (${ready.length} style(s), ${PLANNED.length} planned)`);
+console.log(`✓ README gallery + docs/index.html (${ready.length} rendered, ${pending.length} without preview yet)`);

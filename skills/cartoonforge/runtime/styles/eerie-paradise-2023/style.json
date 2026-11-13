@@ -1,0 +1,29 @@
+{
+  "slug": "eerie-paradise-2023",
+  "name": "Eerie Paradise Anime",
+  "era": "2020s",
+  "group": "Anime",
+  "tagline": "Poison-bright flowers and misty jungle: a paradise that feels wrong.",
+  "tags": [
+    "anime",
+    "dark fantasy",
+    "flowers",
+    "eerie"
+  ],
+  "music": {
+    "genre": "eerie",
+    "bpm": 84,
+    "fx": "mist"
+  },
+  "voice": {
+    "speed": 0.97,
+    "fx": "airy"
+  },
+  "subtitle": "an eerie paradise anime",
+  "showcase": {
+    "gif": [
+      4.3,
+      3.4
+    ]
+  }
+}

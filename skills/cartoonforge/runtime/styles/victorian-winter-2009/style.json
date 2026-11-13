@@ -1,0 +1,29 @@
+{
+  "slug": "victorian-winter-2009",
+  "name": "Victorian Winter 3D",
+  "era": "2009",
+  "group": "Feature",
+  "tagline": "Deep-blue night, falling snow, gas lamps, crooked rooftops and chimneys.",
+  "tags": [
+    "3d look",
+    "winter",
+    "gothic",
+    "holiday"
+  ],
+  "music": {
+    "genre": "winter",
+    "bpm": 76,
+    "fx": "cinema"
+  },
+  "voice": {
+    "speed": 0.96,
+    "fx": "storyteller"
+  },
+  "subtitle": "a victorian winter tale",
+  "showcase": {
+    "gif": [
+      4.3,
+      3.4
+    ]
+  }
+}

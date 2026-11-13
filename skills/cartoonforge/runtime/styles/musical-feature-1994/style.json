@@ -1,0 +1,29 @@
+{
+  "slug": "musical-feature-1994",
+  "name": "Classic Musical Feature",
+  "era": "1990s",
+  "group": "Feature",
+  "tagline": "Hand-drawn epic: painted vistas, giant sunset, god-rays, golden hour.",
+  "tags": [
+    "feature",
+    "hand-drawn",
+    "musical",
+    "epic"
+  ],
+  "music": {
+    "genre": "feature",
+    "bpm": 92,
+    "fx": "cinema"
+  },
+  "voice": {
+    "speed": 0.98,
+    "fx": "storyteller"
+  },
+  "subtitle": "a classic musical feature",
+  "showcase": {
+    "gif": [
+      4.3,
+      3.4
+    ]
+  }
+}

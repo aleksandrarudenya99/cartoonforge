@@ -12,7 +12,7 @@
  *     "start": 1.8, "gap": 0.35,     // when the first line starts; pause between lines
  *     "lines": ["Hi!", {"text": "Look up!", "at": 5.2}],
  *     "recording": "my-voice.m4a",   // OPTIONAL: your own voice instead of TTS (lines then = caption text, optional)
- *     "voiceFx": "style",            // style (from style.json) | none | gramophone | radio | cartoon | chipmunk
+ *     "voiceFx": "style",            // style (from style.json) | any name in lib/audio/fx.mjs VOICE_FX
  *     "music": true,                 // true = generate in the style's genre, false = none, or a path
  *     "musicVolume": 0.55,
  *     "minDuration": 10
@@ -30,7 +30,9 @@ import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { compose, wav } from "./lib/synth.mjs";
+import { compose } from "./lib/audio/genres.mjs";
+import { wav } from "./lib/audio/instruments.mjs";
+import { MASTER, MUSIC_NOISE, musicFx, voiceFx } from "./lib/audio/fx.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const dir = resolve(process.argv[2] ?? ".");
@@ -145,22 +147,6 @@ if (voiceInputs.length) {
 }
 
 // ---------------------------------------------------------------- helpers
-function voiceFx(name) {
-  const pitch = (k) => `asetrate=48000*${k},aresample=48000,atempo=${(1 / k).toFixed(4)}`;
-  switch (name) {
-    case "gramophone": // 1930s: narrow band, a little nasal, slightly brighter pitch
-      return `${pitch(1.06)},highpass=f=320,lowpass=f=3300,equalizer=f=1500:t=q:w=1.2:g=5,acompressor=threshold=-18dB:ratio=4,volume=1.4`;
-    case "radio":
-      return "highpass=f=400,lowpass=f=3000,acompressor=threshold=-20dB:ratio=6,volume=1.5";
-    case "cartoon": // bright, bouncy character voice
-      return `${pitch(1.22)},equalizer=f=2500:t=q:w=1:g=3`;
-    case "chipmunk":
-      return pitch(1.55);
-    default:
-      return "anull";
-  }
-}
-
 /** Caption cues for a recording: whisper word timestamps if available, else your `lines` spread over the speech. */
 function captionsForRecording(wavPath, offset, dur) {
   const tr = sh("npx", ["--yes", "hyperframes@0.9.41", "transcribe", wavPath, "--json", "-l", lang.slice(0, 2), "-m", lang.startsWith("en") ? "small.en" : "small"], { cwd: dir, timeout: 600000 });
@@ -232,10 +218,12 @@ let haveMusic = false;
 if (S.music === true) {
   const raw = join(tmp, "music.raw.wav");
   writeFileSync(raw, wav(compose({ genre: meta.music?.genre || "ragtime", bpm, seconds: DUR, seed: S.seed ?? 7 })));
-  // "gramophone": band-limited + a little crackle
-  const fx = meta.music?.lofi === "gramophone"
-    ? `[0:a]aresample=48000,highpass=f=180,lowpass=f=3800,volume=1.0[m];anoisesrc=d=${DUR}:c=brown:a=0.012:r=48000[n];[m][n]amix=inputs=2:normalize=0[out]`
-    : `[0:a]aresample=48000[out]`;
+  // style colouring (lib/audio/fx.mjs): e.g. gramophone = band-limited + crackle
+  const mfx = meta.music?.fx ?? meta.music?.lofi ?? "none";
+  const nz = MUSIC_NOISE[mfx];
+  const fx = nz
+    ? `[0:a]aresample=48000,${musicFx(mfx)}[m];anoisesrc=d=${DUR}:c=${nz.color}:a=${nz.amp}:r=48000[n];[m][n]amix=inputs=2:normalize=0[out]`
+    : `[0:a]aresample=48000,${musicFx(mfx)}[out]`;
   must(sh("ffmpeg", ["-loglevel", "error", "-y", "-i", raw, "-filter_complex", fx, "-map", "[out]", "-t", String(DUR), "-ac", "1", musicWav]), "music fx");
   haveMusic = true;
 } else if (typeof S.music === "string") {
@@ -250,13 +238,13 @@ const mv = S.musicVolume ?? 0.55;
 let filter, inputs;
 if (haveMusic && voiceInputs.length) {
   inputs = ["-i", musicWav, "-i", voiceWav];
-  filter = `[0:a]volume=${mv}[m];[1:a]asplit=2[v][sc];[m][sc]sidechaincompress=threshold=0.03:ratio=8:attack=20:release=350[md];[md][v]amix=inputs=2:normalize=0,loudnorm=I=-14:TP=-1.5:LRA=11,aresample=48000,apad=whole_dur=${DUR}[out]`;
+  filter = `[0:a]volume=${mv}[m];[1:a]asplit=2[v][sc];[m][sc]sidechaincompress=threshold=0.03:ratio=8:attack=20:release=350[md];[md][v]amix=inputs=2:normalize=0,${MASTER},aresample=48000,apad=whole_dur=${DUR}[out]`;
 } else if (haveMusic) {
   inputs = ["-i", musicWav];
-  filter = `[0:a]volume=${mv},loudnorm=I=-14:TP=-1.5:LRA=11,aresample=48000,apad=whole_dur=${DUR}[out]`;
+  filter = `[0:a]volume=${mv},${MASTER},aresample=48000,apad=whole_dur=${DUR}[out]`;
 } else if (voiceInputs.length) {
   inputs = ["-i", voiceWav];
-  filter = `[0:a]loudnorm=I=-14:TP=-1.5:LRA=11,aresample=48000,apad=whole_dur=${DUR}[out]`;
+  filter = `[0:a]${MASTER},aresample=48000,apad=whole_dur=${DUR}[out]`;
 }
 const hasAudio = Boolean(filter);
 if (hasAudio) {

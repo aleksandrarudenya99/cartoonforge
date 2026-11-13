@@ -1,0 +1,29 @@
+{
+  "slug": "pixel-1992",
+  "name": "Pixel 16-bit",
+  "era": "early 1990s",
+  "group": "Modern",
+  "tagline": "Chunky pixels, banded sky, parallax hills, spinning coins, chiptune.",
+  "tags": [
+    "pixel art",
+    "retro games",
+    "16-bit",
+    "chiptune"
+  ],
+  "music": {
+    "genre": "chiptune",
+    "bpm": 140,
+    "fx": "none"
+  },
+  "voice": {
+    "speed": 1.0,
+    "fx": "bitcrush"
+  },
+  "subtitle": "a 16-bit pixel cartoon",
+  "showcase": {
+    "gif": [
+      4.3,
+      3.4
+    ]
+  }
+}

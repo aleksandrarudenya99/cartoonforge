@@ -1,0 +1,29 @@
+{
+  "slug": "ukiyoe-anime-2020",
+  "name": "Ukiyo-e Action Anime",
+  "era": "2020s",
+  "group": "Anime",
+  "tagline": "Elemental swirls painted like woodblock prints over endless shifting halls.",
+  "tags": [
+    "anime",
+    "ukiyo-e",
+    "action",
+    "japan"
+  ],
+  "music": {
+    "genre": "ukiyoe",
+    "bpm": 116,
+    "fx": "cinema"
+  },
+  "voice": {
+    "speed": 1.0,
+    "fx": "hero"
+  },
+  "subtitle": "a ukiyo-e action anime",
+  "showcase": {
+    "gif": [
+      4.3,
+      3.4
+    ]
+  }
+}

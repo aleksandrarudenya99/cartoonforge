@@ -1,12 +1,13 @@
 ---
 name: cartoonforge
-description: Make short cartoon videos drawn entirely in code (SVG + headless Chrome + FFmpeg) in classic animation styles such as Rubber Hose 1930 — with captions, voice-over (free TTS or the user's own recording) and generated music — for Instagram Reels, Shorts and TikTok. Use when asked for a cartoon, animated reel or short "in style X about Y", to turn a voice recording into a cartoon, or to add a new cartoon style.
+description: Make short cartoon videos drawn entirely in code (SVG + headless Chrome + FFmpeg) with the user's own characters and idea, in one of 24 animation styles from 1920s silhouettes to 2020s anime looks — with captions, voice-over (free TTS or the user's own recording) and generated music — for Instagram Reels, Shorts and TikTok. Use when asked for a cartoon, animated reel or short "in style X about Y", to turn a voice recording into a cartoon, or to add a new cartoon style.
 ---
 
 # cartoonforge
 
-Cartoons drawn by code, frame by frame. No video model. Output: a 1080×1920, 24 fps MP4 with
-voice, music and burned-in captions, ready for Reels, plus a contact sheet to review it.
+Cartoons drawn by code, frame by frame. No video model. The **user brings the characters and the
+idea**; the style decides how everything is drawn, animated, voiced and scored. Output: a 1080×1920,
+24 fps MP4 with voice, music and burned-in captions, ready for Reels, plus a contact sheet to review it.
 
 `SKILL_DIR` below = this skill's folder.
 
@@ -18,18 +19,20 @@ If something is missing, tell the user exactly what to install; don't build the 
 
 ## Workflow
 
-### 1. Brief → beat sheet (before any code)
-Settle with the user, or decide and state: topic, style, length (10–20 s for a Reel), voice
-(TTS or their recording), language, ending. Then write a beat sheet: 4–7 beats with time ranges,
-one clear action each, aligned with what the voice says.
+### 1. Characters + idea → beat sheet (before any code)
+Ask the user for **their characters** (description, sketch or photo) and **the idea**; never default to a
+house mascot. Write each character spec as in `runtime/characters/README.md`. Settle: style, length
+(10–20 s for a Reel), voice (TTS or their recording), language, ending. Then write a beat sheet:
+4–7 beats with time ranges, one clear action each, aligned with what the voice says.
 - Hook in the first 1.5 s (title card, gag or motion).
 - Anticipation before every big action, settle after it.
 - End on a card or a pose that loops.
 
 ### 2. Pick the style
-`ls SKILL_DIR/runtime/styles`. Read `runtime/styles/<style>/README.md` in full (look, timing, do/don't)
-and `style.json` (music genre, voice treatment). If the requested style doesn't exist, say so, offer
-the closest one, or create it (step 7).
+`ls SKILL_DIR/runtime/styles` (each has `style.json` with name, era, group, tagline). Read the chosen
+`README.md` in full (look, sound, do/don't). If the user names a film or series ("like X 100%"), never
+copy it: pick the genre style that matches (the README's lineage line says which), and say so in one
+line. If nothing fits, offer the closest one or create a style (step 7).
 
 ### 3. Scaffold
 ```bash
@@ -74,13 +77,17 @@ The whole film is `render(t)`, a pure function of time. `CF.duration` and `CF.ca
 - Call `look.update(tRaw)` first, then use `Toon.onTwos(tRaw)` for character motion.
 - Keyframes `Toon.track()`, limbs `Toon.hose()`, squash & stretch `Toon.squash()` / the rig's `squash`.
 - Keep the action between y≈500 and y≈1500; captions sit near y≈380 (Reels UI covers top and bottom).
-- Original characters only (bundled: Pip, `lib/characters/pip/rig.js`). Never draw studio characters,
+- Draw the **user's characters** with the style's `skin` (outline, shading mode) and the user's colours.
+  Build each as a rig in `characters/<name>.js` with the `build(parent, skin) → { pose(p) }` contract of
+  `lib/characters/pip/rig.js` (Pip is only the reference rig for tests). Never draw studio characters,
   logos or famous catchphrases, even if asked; offer an original instead.
 
-### 6. Render and review
+### 6. Review fast, then render
 ```bash
-node SKILL_DIR/scripts/render.mjs cartoons/<slug> --draft
+node SKILL_DIR/scripts/stills.mjs cartoons/<slug>          # seconds: 10 stills tiled → renders/<slug>.stills.png
+node SKILL_DIR/scripts/render.mjs cartoons/<slug> --draft  # minutes: real MP4 + contact sheet
 ```
+Iterate with `stills.mjs`; render only when the stills look right.
 **Open `renders/<slug>.sheet.png` and look at it** before saying it's done: character on screen and
 on model, captions readable and not covering the face, every beat visible. Fix and re-render.
 Final: run again without `--draft` (~2–3 min for 10 s on a laptop). Give the user the MP4.
@@ -96,8 +103,13 @@ the gallery.
 | Path | What |
 |---|---|
 | `runtime/core/toon.js` | `onTwos`, `track`, `ease`, `squash`, `hose`, `rng`, `noise`, `captions`, `film` |
-| `runtime/styles/*/` | style packs |
-| `runtime/characters/pip/rig.js` | the mascot rig; header lists `pose()` fields |
+| `runtime/core/fx.js` | shared film textures + layer stack: boil, grain, paper, vignette, flicker, weave, dirt, inkBleed, cutEdge, halftone, misregister, bloom, paperShadow, hatch, pixelate, scanlines, speedLines, gradient |
+| `runtime/core/scenes.js` | title card, end card, iris / fade — themed by `style.cards` |
+| `runtime/core/shapes.js` | spiral, star, brush, cloud, ridge, wave, poly |
+| `runtime/styles/*/` | 24 style packs: `style.js` (look + scenery), `style.json` (meta, music, voice), `README.md` |
+| `runtime/characters/` | character spec + reference rig (`pip/rig.js`, tests only) |
+| `scripts/lib/audio/` | `instruments.mjs`, `genres.mjs` (23 genres), `fx.mjs` (voice/music/master presets) |
+| `scripts/stills.mjs` | fast stills review without rendering |
 | `scripts/new-film.mjs` | scaffold a film (`--update-lib` refreshes an existing one) |
 | `scripts/audio.mjs` | TTS / recording + style voice FX + generated music + captions |
 | `scripts/render.mjs` | MP4 + contact sheet |

@@ -1,0 +1,29 @@
+{
+  "slug": "zany-tv-1999",
+  "name": "Zany TV Cartoon",
+  "era": "late 1990s",
+  "group": "TV",
+  "tagline": "Wobbly lively outlines, odd proportions, acid colours, everything breathes.",
+  "tags": [
+    "tv",
+    "cartoon",
+    "wacky",
+    "90s"
+  ],
+  "music": {
+    "genre": "zany",
+    "bpm": 138,
+    "fx": "broadcast"
+  },
+  "voice": {
+    "speed": 1.06,
+    "fx": "cartoon"
+  },
+  "subtitle": "a zany TV cartoon",
+  "showcase": {
+    "gif": [
+      4.3,
+      3.4
+    ]
+  }
+}

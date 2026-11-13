@@ -1,0 +1,29 @@
+{
+  "slug": "paper-cutout-1960",
+  "name": "Paper Cut-out",
+  "era": "1950s–60s",
+  "group": "World",
+  "tagline": "Torn construction paper, brass fastener joints, layers casting little shadows.",
+  "tags": [
+    "cut-out",
+    "paper",
+    "craft",
+    "folk"
+  ],
+  "music": {
+    "genre": "polka",
+    "bpm": 116,
+    "fx": "none"
+  },
+  "voice": {
+    "speed": 1.0,
+    "fx": "storyteller"
+  },
+  "subtitle": "a paper cut-out cartoon",
+  "showcase": {
+    "gif": [
+      4.3,
+      3.4
+    ]
+  }
+}

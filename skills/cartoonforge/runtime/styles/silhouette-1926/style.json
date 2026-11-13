@@ -1,0 +1,29 @@
+{
+  "slug": "silhouette-1926",
+  "name": "Silhouette Theatre",
+  "era": "1920s",
+  "group": "Vintage",
+  "tagline": "Black cut-paper puppets with lace edges against a glowing backdrop. A fairy-tale waltz.",
+  "tags": [
+    "silhouette",
+    "shadow play",
+    "fairy tale",
+    "cut paper"
+  ],
+  "music": {
+    "genre": "waltz",
+    "bpm": 96,
+    "fx": "hall"
+  },
+  "voice": {
+    "speed": 0.98,
+    "fx": "storyteller"
+  },
+  "subtitle": "a silhouette fairy tale",
+  "showcase": {
+    "gif": [
+      4.3,
+      3.4
+    ]
+  }
+}

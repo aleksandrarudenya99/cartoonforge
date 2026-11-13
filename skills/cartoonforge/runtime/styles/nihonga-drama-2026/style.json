@@ -1,0 +1,29 @@
+{
+  "slug": "nihonga-drama-2026",
+  "name": "Nihonga Drama",
+  "era": "2020s",
+  "group": "Anime",
+  "tagline": "Mineral-pigment painting, gold-leaf clouds, a crimson sun, smoke and big type.",
+  "tags": [
+    "anime",
+    "nihonga",
+    "drama",
+    "gold leaf"
+  ],
+  "music": {
+    "genre": "nihonga",
+    "bpm": 88,
+    "fx": "cinema"
+  },
+  "voice": {
+    "speed": 0.96,
+    "fx": "storyteller"
+  },
+  "subtitle": "a nihonga drama",
+  "showcase": {
+    "gif": [
+      4.3,
+      3.4
+    ]
+  }
+}

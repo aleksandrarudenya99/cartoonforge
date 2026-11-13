@@ -1,0 +1,29 @@
+{
+  "slug": "upa-1950",
+  "name": "Mid-Century Modern",
+  "era": "1950s",
+  "group": "Vintage",
+  "tagline": "Flat colour shapes, line drawn off the colour, atomic starbursts, cool jazz.",
+  "tags": [
+    "flat",
+    "graphic",
+    "limited animation",
+    "jazz"
+  ],
+  "music": {
+    "genre": "cooljazz",
+    "bpm": 132,
+    "fx": "tape"
+  },
+  "voice": {
+    "speed": 1.04,
+    "fx": "radio"
+  },
+  "subtitle": "a mid-century modern cartoon · 1950s",
+  "showcase": {
+    "gif": [
+      4.3,
+      3.4
+    ]
+  }
+}

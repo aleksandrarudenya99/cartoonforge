@@ -1,0 +1,29 @@
+{
+  "slug": "tv-anime-1999",
+  "name": "TV Anime Adventure",
+  "era": "late 1990s–2000s",
+  "group": "Anime",
+  "tagline": "Bright TV anime: big blue sky, cel shadows, impact flashes and speed lines.",
+  "tags": [
+    "anime",
+    "tv",
+    "adventure",
+    "shonen"
+  ],
+  "music": {
+    "genre": "adventure",
+    "bpm": 132,
+    "fx": "broadcast"
+  },
+  "voice": {
+    "speed": 1.03,
+    "fx": "tv"
+  },
+  "subtitle": "a TV anime adventure",
+  "showcase": {
+    "gif": [
+      4.3,
+      3.4
+    ]
+  }
+}

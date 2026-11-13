@@ -1,0 +1,29 @@
+{
+  "slug": "soviet-village-1982",
+  "name": "Soviet Village Cartoon",
+  "era": "1980s",
+  "group": "World",
+  "tagline": "Naive warm drawing, thatched huts, sunflowers, a wattle fence, a big moon.",
+  "tags": [
+    "soviet",
+    "folk",
+    "hand-drawn",
+    "village"
+  ],
+  "music": {
+    "genre": "folk",
+    "bpm": 90,
+    "fx": "tape"
+  },
+  "voice": {
+    "speed": 0.97,
+    "fx": "storyteller"
+  },
+  "subtitle": "a village cartoon",
+  "showcase": {
+    "gif": [
+      4.3,
+      3.4
+    ]
+  }
+}

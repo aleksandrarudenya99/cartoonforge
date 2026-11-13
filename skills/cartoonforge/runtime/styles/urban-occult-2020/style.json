@@ -1,0 +1,29 @@
+{
+  "slug": "urban-occult-2020",
+  "name": "Urban Occult Anime",
+  "era": "2020s",
+  "group": "Anime",
+  "tagline": "Night city, deep black shadows, violet auras that crackle, glitch on impact.",
+  "tags": [
+    "anime",
+    "supernatural",
+    "urban",
+    "night"
+  ],
+  "music": {
+    "genre": "occult",
+    "bpm": 124,
+    "fx": "cinema"
+  },
+  "voice": {
+    "speed": 0.98,
+    "fx": "shadow"
+  },
+  "subtitle": "an urban occult anime",
+  "showcase": {
+    "gif": [
+      4.3,
+      3.4
+    ]
+  }
+}

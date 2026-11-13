@@ -1,0 +1,29 @@
+{
+  "slug": "tv-cartoon-1990",
+  "name": "Primetime TV Cartoon",
+  "era": "1990s",
+  "group": "TV",
+  "tagline": "Bright flat colours, even thick outlines, suburban street, a broadcast feel.",
+  "tags": [
+    "tv",
+    "sitcom",
+    "flat",
+    "90s"
+  ],
+  "music": {
+    "genre": "sitcom",
+    "bpm": 128,
+    "fx": "broadcast"
+  },
+  "voice": {
+    "speed": 1.02,
+    "fx": "tv"
+  },
+  "subtitle": "a primetime cartoon",
+  "showcase": {
+    "gif": [
+      4.3,
+      3.4
+    ]
+  }
+}

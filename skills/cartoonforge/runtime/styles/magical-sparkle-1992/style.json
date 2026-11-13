@@ -1,0 +1,29 @@
+{
+  "slug": "magical-sparkle-1992",
+  "name": "Magical Sparkle Anime",
+  "era": "1990s",
+  "group": "Anime",
+  "tagline": "Pastel pinks and lilacs, glitter, ribbons, shimmering transformation skies.",
+  "tags": [
+    "anime",
+    "magical girl",
+    "pastel",
+    "sparkle"
+  ],
+  "music": {
+    "genre": "sparkle",
+    "bpm": 120,
+    "fx": "vhs"
+  },
+  "voice": {
+    "speed": 1.04,
+    "fx": "vhs"
+  },
+  "subtitle": "a magical sparkle anime",
+  "showcase": {
+    "gif": [
+      4.3,
+      3.4
+    ]
+  }
+}

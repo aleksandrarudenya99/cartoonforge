@@ -14,16 +14,18 @@
 | Phase | Goal | Status |
 |---|---|---|
 | 0. Foundation | research, repo, core helpers, Rubber Hose 1930, mascot Pip, first reel | ✅ done |
-| 1. Skill | installable Claude Code skill/plugin; captions, voice (TTS or **your own recording, treated by the style**) and generated music; GitHub showcase (README gallery + Pages) | 🚧 now |
-| 2. Five styles | UPA 1950 · paper cut-out · 80s cel anime · comic halftone · claymation — each ships with a reel, a gallery tile and a post | next |
-| 3. Formats | reel templates: explainer, joke, quote, announcement, loop; more characters | later |
-| 4. Website for everyone | non-engineers pick a style, type a script, get an MP4 — no code, no terminal | later |
+| 1. Skill | installable Claude Code skill/plugin; captions, voice (TTS or **your own recording, treated by the style**) and generated music; GitHub showcase (README gallery + Pages) | ✅ done |
+| 2. All styles | 24 genre/era styles (1920s silhouettes → 2020s anime looks), shared video core + shared audio lib | ✅ added, not yet rendered |
+| 3. Testing | run every style with test characters and ideas, render, fix, fill the gallery | next |
+| 4. Your characters | character spec / sketch / photo → rig in any style (shared body-part kit, style shading modes) | then |
+| 5. Formats | reel templates: explainer, joke, quote, announcement, loop | later |
+| 6. Website for everyone | non-engineers pick a style, upload characters and an idea, get an MP4 | later |
 
 ## Release rhythm (from phase 2)
 
 For every new style:
 1. style pack + README (what defines the look)
-2. a 10–15 s reel of Pip in that style
+2. a 10–15 s test reel in that style
 3. `npm run showcase` → gallery tile, preview GIF, Pages update
 4. post: Instagram reel + LinkedIn write-up linking the repo
 

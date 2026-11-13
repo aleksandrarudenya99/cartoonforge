@@ -1,120 +1,91 @@
 /**
  * Style pack: Rubber Hose · 1930
  *
- * What makes the look (each item is one block below):
- *   1. Palette     — warm paper, black ink, one mid grey. No colour.
- *   2. Line boil   — outlines wobble a little on every new drawing (feTurbulence
- *                    + feDisplacementMap, seed changes on twos).
- *   3. Film grain  — fresh noise every frame (24 fps).
- *   4. Dirt        — dust specks and vertical scratches, seeded per frame.
- *   5. Flicker     — projector lamp brightness jitter.
- *   6. Gate weave  — the whole frame drifts a few px, like film in a gate.
- *   7. Vignette    — darker corners from an old lens.
- *
- * Usage:
- *   const look = Toon.styles["rubber-hose-1930"].install(svg, { width, height });
- *   // draw your scene into look.scene
- *   // call look.update(t) from your film's render(t)
+ * A style pack = data + two functions:
+ *   palette, motion, caption, cards, skin   (data the film and shared code read)
+ *   install(svg, {width, height}) → look    (layer stack + film texture, from core/fx.js)
+ *   scenery(look, {width, height, ground}) → { update(t, {beat}) }   (the world)
  */
 (function (global) {
   "use strict";
   const T = global.Toon;
 
-  const palette = {
-    paper: "#ebe4d2",
-    paperShade: "#d6cdb6",
-    ink: "#141210",
-    grey: "#8d877a",
-    white: "#f7f3e8",
-  };
+  const palette = { paper: "#ebe4d2", paperShade: "#d6cdb6", ink: "#141210", grey: "#8d877a", white: "#f7f3e8" };
 
-  const motion = {
-    drawingsPerSecond: 12, // animate on twos
-    filmFps: 24,
-    bpm: 120, // 1930s cartoons bounce everything to the music
-    lineWidth: 10,
-  };
+  const motion = { drawingsPerSecond: 12, filmFps: 24, bpm: 120, lineWidth: 10 };
 
   // burned-in captions: 1930s intertitle lettering, cream with a heavy ink outline
   const caption = {
-    y: 380,
-    size: 78,
-    font: "Georgia, 'DejaVu Serif', serif",
-    weight: "bold",
-    style: "italic",
-    fill: palette.white,
-    stroke: palette.ink,
-    strokeWidth: 16,
-    maxWidth: 900,
+    y: 380, size: 78, font: "Georgia, 'DejaVu Serif', serif", weight: "bold", style: "italic",
+    fill: palette.white, stroke: palette.ink, strokeWidth: 16, maxWidth: 900,
   };
 
-  function install(svg, { width, height, intensity = 1 }) {
-    const { el } = T;
-    const defs = el("defs", {}, svg);
+  // title / end cards and transitions (core/scenes.js)
+  const cards = {
+    bg: palette.ink, fg: palette.paper, font: "Georgia, 'DejaVu Serif', serif",
+    frame: "double", transition: "iris", transitionColor: "#0b0a09", upper: true,
+  };
 
-    // 2. line boil
-    const boil = el("filter", { id: "rh-boil", x: "-5%", y: "-5%", width: "110%", height: "110%" }, defs);
-    const boilNoise = el("feTurbulence", { type: "fractalNoise", baseFrequency: "0.018", numOctaves: "2", seed: "1", result: "n" }, boil);
-    el("feDisplacementMap", { in: "SourceGraphic", in2: "n", scale: String(5 * intensity), xChannelSelector: "R", yChannelSelector: "G" }, boil);
+  // how Pip is drawn in this style (characters/pip/rig.js)
+  const skin = { ink: palette.ink, white: palette.white, lineWidth: motion.lineWidth };
 
-    // 3. grain
-    const grainF = el("filter", { id: "rh-grain", x: "0", y: "0", width: "100%", height: "100%" }, defs);
-    const grainNoise = el("feTurbulence", { type: "fractalNoise", baseFrequency: "0.85", numOctaves: "1", seed: "1", result: "g" }, grainF);
-    el("feColorMatrix", { in: "g", type: "matrix", values: "0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1.6 1.15" }, grainF);
-
-    // 7. vignette
-    const vig = el("radialGradient", { id: "rh-vignette", cx: "50%", cy: "48%", r: "70%" }, defs);
-    el("stop", { offset: "55%", "stop-color": palette.ink, "stop-opacity": "0" }, vig);
-    el("stop", { offset: "100%", "stop-color": palette.ink, "stop-opacity": String(0.55 * intensity) }, vig);
-
-    // layer stack
-    const weave = el("g", {}, svg); // 6. gate weave moves everything below
-    el("rect", { x: -40, y: -40, width: width + 80, height: height + 80, fill: palette.paper }, weave);
-    const scene = el("g", { filter: "url(#rh-boil)" }, weave);
-    const overlay = el("g", {}, weave); // for iris masks, title cards etc. (film draws here)
-
-    const fx = el("g", { "pointer-events": "none" }, svg);
-    const dirt = el("g", {}, fx);
-    el("rect", { x: 0, y: 0, width, height, filter: "url(#rh-grain)", opacity: String(0.32 * intensity), style: "mix-blend-mode:multiply" }, fx);
-    el("rect", { x: 0, y: 0, width, height, fill: "url(#rh-vignette)" }, fx);
-    const flicker = el("rect", { x: 0, y: 0, width, height, fill: palette.white, opacity: "0" }, fx);
-
-    function update(t) {
-      const drawing = T.drawingIndex(t, motion.drawingsPerSecond);
-      const frame = Math.floor(t * motion.filmFps + 1e-6);
-
-      boilNoise.setAttribute("seed", String(1 + (drawing % 4))); // a few drawings loop: calmer boil
-      grainNoise.setAttribute("seed", String(1 + (frame % 97)));
-
-      // 6. gate weave
-      const wx = T.noise(11, t * 1.3) * 3 * intensity;
-      const wy = T.noise(23, t * 0.9) * 4 * intensity;
-      weave.setAttribute("transform", `translate(${wx.toFixed(2)},${wy.toFixed(2)})`);
-
-      // 5. flicker
-      flicker.setAttribute("opacity", (Math.abs(T.hash(5, frame)) * 0.07 * intensity).toFixed(3));
-
-      // 4. dirt: rebuild per frame from seed (cheap: a handful of nodes)
-      while (dirt.firstChild) dirt.removeChild(dirt.firstChild);
-      const r = T.rng(1000 + frame);
-      const specks = Math.floor(r() * 5 * intensity);
-      for (let i = 0; i < specks; i++) {
-        el("ellipse", {
-          cx: (r() * width).toFixed(0), cy: (r() * height).toFixed(0),
-          rx: (1 + r() * 5).toFixed(1), ry: (1 + r() * 3).toFixed(1),
-          fill: r() < 0.7 ? palette.ink : palette.white, opacity: (0.4 + r() * 0.5).toFixed(2),
-        }, dirt);
-      }
-      if (r() < 0.35 * intensity) {
-        const x = r() * width;
-        el("line", { x1: x, y1: 0, x2: x + (r() - 0.5) * 30, y2: height, stroke: palette.ink, "stroke-width": (0.8 + r() * 1.6).toFixed(1), opacity: "0.35" }, dirt);
-      }
-    }
-
-    update(0);
-    return { scene, overlay, update, defs };
+  function install(svg, { width, height }) {
+    return T.fx.stack(svg, { width, height, background: palette.paper }, (fx, L) => [
+      fx.weave(L, { x: 3, y: 4 }),
+      fx.boil(L, { scale: 5, dps: motion.drawingsPerSecond }),
+      fx.dirt(L, { colors: [palette.ink, palette.white] }),
+      fx.grain(L, { opacity: 0.32 }),
+      fx.vignette(L, { color: palette.ink, strength: 0.55 }),
+      fx.flicker(L, { color: palette.white, amount: 0.07 }),
+    ]);
   }
 
-  global.Toon.styles = global.Toon.styles || {};
-  global.Toon.styles["rubber-hose-1930"] = { palette, motion, caption, install };
+  /** Hills, a rubber tree, clouds and flowers — everything bounces to the beat. */
+  function scenery(look, { width: W, ground: G }) {
+    const P = palette, lw = motion.lineWidth, g = look.scene;
+    const line = { fill: "none", stroke: P.ink, "stroke-width": lw, "stroke-linecap": "round", "stroke-linejoin": "round" };
+    const bg = T.el("g", {}, g);
+    T.el("path", { ...line, d: `M-40,${G - 260} C200,${G - 420} 420,${G - 300} 560,${G - 330} C760,${G - 380} 900,${G - 470} ${W + 40},${G - 300} L${W + 40},${G} L-40,${G} Z`, fill: P.paperShade }, bg);
+    T.el("path", { ...line, d: `M-40,${G} L${W + 40},${G}` }, bg);
+    T.el("rect", { x: -40, y: G, width: W + 80, height: 500, fill: P.grey, opacity: 0.35 }, bg);
+    for (let i = 0; i < 9; i++) T.el("path", { ...line, d: `M${60 + i * 130},${G + 70 + (i % 3) * 90} l50,0`, "stroke-width": lw * 0.6 }, bg);
+
+    const tree = T.el("g", {}, g);
+    const trunk = T.el("path", { ...line, "stroke-width": 30 }, tree);
+    const crown = T.el("g", {}, tree);
+    T.el("path", { d: "M-150,0 C-190,-90 -110,-170 -40,-150 C-20,-230 90,-230 110,-150 C190,-170 210,-60 150,0 C110,50 -110,50 -150,0 Z", fill: P.ink }, crown);
+    T.el("path", { d: "M-90,-60 C-60,-110 -10,-110 10,-70", fill: "none", stroke: P.white, "stroke-width": 12, "stroke-linecap": "round" }, crown);
+
+    const clouds = [[230, 215, 0.9], [830, 170, 0.75]].map(([x, y, s]) => {
+      const c = T.el("g", {}, g);
+      T.el("path", { ...line, d: "M-120,20 C-150,-30 -90,-70 -50,-50 C-30,-100 50,-100 70,-50 C120,-70 160,-20 120,20 Z", fill: P.white }, c);
+      return { c, x, y, s };
+    });
+    const flowers = [[150, 1], [930, -1]].map(([x, dir]) => {
+      const f = T.el("g", {}, g);
+      const stem = T.el("path", { ...line }, f);
+      const head = T.el("g", {}, f);
+      for (let k = 0; k < 5; k++) T.el("ellipse", { ...line, cx: 0, cy: -30, rx: 16, ry: 30, fill: P.white, "stroke-width": lw * 0.7, transform: `rotate(${k * 72})` }, head);
+      T.el("circle", { r: 18, fill: P.ink }, head);
+      return { stem, head, x, dir };
+    });
+
+    return {
+      update(t, { beat }) {
+        const bounce = Math.pow(Math.sin(Math.PI * ((t % beat) / beat)), 2);
+        const sway = Math.sin((t / beat) * Math.PI) * 9;
+        trunk.setAttribute("d", T.hose(820, G - 6, 820 + sway * 2, G - 330, sway * 3));
+        crown.setAttribute("transform", `translate(${820 + sway * 2},${G - 330}) rotate(${sway * 0.6}) scale(${1 + bounce * 0.05},${1 - bounce * 0.05})`);
+        clouds.forEach(({ c, x, y, s }, i) => c.setAttribute("transform", `translate(${x + Math.sin(t * 0.6 + i) * 20},${y + bounce * 14}) scale(${s})`));
+        flowers.forEach(({ stem, head, x, dir }) => {
+          const tip = x + Math.sin((t / beat) * Math.PI) * 26 * dir;
+          stem.setAttribute("d", T.hose(x, G, tip, G - 170 + bounce * 14, 14 * dir));
+          head.setAttribute("transform", `translate(${tip},${G - 200 + bounce * 14}) rotate(${t * 40 * dir})`);
+        });
+      },
+    };
+  }
+
+  T.styles = T.styles || {};
+  T.styles["rubber-hose-1930"] = { palette, motion, caption, cards, skin, install, scenery };
 })(window);

@@ -1,0 +1,29 @@
+{
+  "slug": "soft-3d-2016",
+  "name": "Soft 3D Feature",
+  "era": "2010s",
+  "group": "Feature",
+  "tagline": "The family 3D feature look in 2D: soft gradients, rim light, sunny rounded city.",
+  "tags": [
+    "3d look",
+    "family",
+    "city",
+    "animals"
+  ],
+  "music": {
+    "genre": "cgi",
+    "bpm": 118,
+    "fx": "broadcast"
+  },
+  "voice": {
+    "speed": 1.02,
+    "fx": "tv"
+  },
+  "subtitle": "a soft 3D feature",
+  "showcase": {
+    "gif": [
+      4.3,
+      3.4
+    ]
+  }
+}

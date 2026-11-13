@@ -1,0 +1,29 @@
+{
+  "slug": "ink-wash-1960",
+  "name": "Ink Wash",
+  "era": "1960s",
+  "group": "World",
+  "tagline": "Brush and ink on rice paper: soft bleeding wash, mountains in mist, a red seal.",
+  "tags": [
+    "ink",
+    "brush",
+    "calm",
+    "painterly"
+  ],
+  "music": {
+    "genre": "pentatonic",
+    "bpm": 72,
+    "fx": "mist"
+  },
+  "voice": {
+    "speed": 0.95,
+    "fx": "airy"
+  },
+  "subtitle": "an ink-wash cartoon",
+  "showcase": {
+    "gif": [
+      4.3,
+      3.4
+    ]
+  }
+}

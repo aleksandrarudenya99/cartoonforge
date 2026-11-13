@@ -1,0 +1,29 @@
+{
+  "slug": "saturday-morning-1987",
+  "name": "Saturday Morning Cartoon",
+  "era": "1980s",
+  "group": "TV",
+  "tagline": "Clean TV cels, bold primaries, airbrushed skies, harbour adventures.",
+  "tags": [
+    "tv",
+    "80s",
+    "adventure",
+    "action"
+  ],
+  "music": {
+    "genre": "saturday",
+    "bpm": 126,
+    "fx": "vhs"
+  },
+  "voice": {
+    "speed": 1.02,
+    "fx": "tv"
+  },
+  "subtitle": "a saturday morning cartoon",
+  "showcase": {
+    "gif": [
+      4.3,
+      3.4
+    ]
+  }
+}

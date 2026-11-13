@@ -1,0 +1,29 @@
+{
+  "slug": "painted-fantasy-2001",
+  "name": "Painted Fantasy Feature",
+  "era": "2000s",
+  "group": "Feature",
+  "tagline": "Watercolour skies, towering clouds, wind through tall grass, lantern light.",
+  "tags": [
+    "feature",
+    "hand-painted",
+    "fantasy",
+    "nature"
+  ],
+  "music": {
+    "genre": "feature",
+    "bpm": 80,
+    "fx": "mist"
+  },
+  "voice": {
+    "speed": 0.96,
+    "fx": "airy"
+  },
+  "subtitle": "a painted fantasy feature",
+  "showcase": {
+    "gif": [
+      4.3,
+      3.4
+    ]
+  }
+}

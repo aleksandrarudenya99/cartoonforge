@@ -1,0 +1,29 @@
+{
+  "slug": "comic-halftone-1966",
+  "name": "Comic Halftone",
+  "era": "1960s pop",
+  "group": "Modern",
+  "tagline": "Ben-Day dots, heavy outlines, print misregistration, sunburst and POP!",
+  "tags": [
+    "comic",
+    "pop art",
+    "halftone",
+    "print"
+  ],
+  "music": {
+    "genre": "funk",
+    "bpm": 112,
+    "fx": "none"
+  },
+  "voice": {
+    "speed": 1.04,
+    "fx": "comic"
+  },
+  "subtitle": "a comic-book cartoon",
+  "showcase": {
+    "gif": [
+      4.3,
+      3.4
+    ]
+  }
+}
