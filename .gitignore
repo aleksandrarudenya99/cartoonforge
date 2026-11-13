@@ -1,0 +1,7 @@
+node_modules/
+renders/
+.hyperframes/
+.idea/workspace.xml
+.idea/shelf/
+.DS_Store
+*.log

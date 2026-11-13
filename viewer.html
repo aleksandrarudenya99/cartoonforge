@@ -1,0 +1,64 @@
+<!doctype html>
+<!--
+  Dev viewer: scrub and play any film without rendering.
+  npx serve .   (or IntelliJ: right-click viewer.html → Open in Browser)
+  then open /viewer.html?film=hello-pip
+-->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>cartoonforge viewer</title>
+    <style>
+      body { margin: 0; background: #1b1a18; color: #ddd; font: 14px system-ui, sans-serif; display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 16px; }
+      #frame { width: 1080px; height: 1920px; border: 0; transform: scale(var(--k)); transform-origin: top center; }
+      #wrap { width: calc(1080px * var(--k)); height: calc(1920px * var(--k)); overflow: hidden; display: flex; justify-content: center; }
+      #bar { display: flex; gap: 10px; align-items: center; width: min(560px, 95vw); }
+      input[type="range"] { flex: 1; }
+      button { background: #333; color: #eee; border: 1px solid #555; border-radius: 6px; padding: 4px 12px; cursor: pointer; }
+    </style>
+  </head>
+  <body>
+    <div id="wrap"><iframe id="frame"></iframe></div>
+    <div id="bar">
+      <button id="play">▶</button>
+      <input id="seek" type="range" min="0" max="10" step="0.001" value="0" />
+      <span id="time">0.00s</span>
+    </div>
+    <script>
+      const k = Math.min((innerHeight - 90) / 1920, 1);
+      document.documentElement.style.setProperty("--k", k.toFixed(3));
+      const film = new URLSearchParams(location.search).get("film") || "hello-pip";
+      const frame = document.getElementById("frame");
+      const seek = document.getElementById("seek");
+      const time = document.getElementById("time");
+      const play = document.getElementById("play");
+      let tl, playing = false, t0 = 0, start = 0;
+      frame.src = `films/${film}/index.html`;
+      frame.onload = () => {
+        tl = frame.contentWindow.__timelines.main;
+        seek.max = tl.duration();
+        go(0);
+      };
+      function go(t) {
+        tl.seek(t);
+        seek.value = t;
+        time.textContent = t.toFixed(2) + "s";
+      }
+      seek.oninput = () => { playing = false; play.textContent = "▶"; go(+seek.value); };
+      play.onclick = () => {
+        playing = !playing;
+        play.textContent = playing ? "❚❚" : "▶";
+        t0 = +seek.value >= tl.duration() ? 0 : +seek.value;
+        start = performance.now();
+        requestAnimationFrame(loop);
+      };
+      function loop(now) {
+        if (!playing) return;
+        const t = t0 + (now - start) / 1000;
+        if (t >= tl.duration()) { go(tl.duration()); playing = false; play.textContent = "▶"; return; }
+        go(t);
+        requestAnimationFrame(loop);
+      }
+    </script>
+  </body>
+</html>
