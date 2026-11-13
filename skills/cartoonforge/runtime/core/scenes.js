@@ -47,7 +47,7 @@
     const up = (s) => (theme.upper ? s.toUpperCase() : s);
     text(g, up("cartoonforge"), W / 2, 760, 58, theme, { "letter-spacing": theme.kickerSpacing ?? 14 });
     text(g, "presents", W / 2, 838, 42, theme, { "font-style": "italic" });
-    text(g, title, W / 2, 1010, title.length > 16 ? 92 : 112, theme, { "font-weight": theme.titleWeight ?? "bold", "font-style": theme.titleStyle ?? "normal" });
+    text(g, title, W / 2, 1010, Math.min(112, Math.floor(1560 / Math.max(1, title.length))), theme, { "font-weight": theme.titleWeight ?? "bold", "font-style": theme.titleStyle ?? "normal" });
     if (subtitle) text(g, `— ${subtitle} —`, W / 2, 1160, 36, theme, { "font-style": "italic" });
     return g;
   }

@@ -65,7 +65,9 @@ const ready = styles.filter((s) => existsSync(`docs/media/${s.slug}.gif`));
 const cell = (s) =>
   `<td align="center" width="33%"><a href="${repo}/#${s.slug}"><img src="docs/media/${s.slug}.gif" width="200" alt="${s.name}"></a><br><b>${s.name}</b> · ${s.era}<br><sub>${s.tagline}</sub></td>`;
 const pending = styles.filter((s) => !ready.includes(s));
-const soon = (p) => `<td align="center" width="33%"><br><br><b>${p.name}</b> · ${p.era}<br><sub>${p.tagline}</sub><br><sub><i>preview coming soon</i></sub><br><br></td>`;
+const soon = (p) => existsSync(`docs/media/stills/${p.slug}.jpg`)
+  ? `<td align="center" width="33%"><img src="docs/media/stills/${p.slug}.jpg" width="200" alt="${p.name}"><br><b>${p.name}</b> · ${p.era}<br><sub>${p.tagline}</sub><br><sub><i>still · video coming soon</i></sub></td>`
+  : `<td align="center" width="33%"><br><br><b>${p.name}</b> · ${p.era}<br><sub>${p.tagline}</sub><br><sub><i>preview coming soon</i></sub><br><br></td>`;
 const cells = [...ready.map(cell), ...pending.map(soon)];
 let rows = "";
 for (let i = 0; i < cells.length; i += 3) rows += `<tr>\n${cells.slice(i, i + 3).join("\n")}\n</tr>\n`;

@@ -51,7 +51,7 @@ const tmp = join(dir, "renders", ".stills");
 rmSync(tmp, { recursive: true, force: true });
 mkdirSync(tmp, { recursive: true });
 for (const [i, t] of times.entries()) {
-  await page.evaluate((t) => window.__timelines.main.seek(t), t);
+  await page.evaluate((t) => { window.__timelines.main.seek(t, false); }, t);
   await page.screenshot({ path: join(tmp, `${String(i).padStart(2, "0")}.png`) });
 }
 await browser.close();

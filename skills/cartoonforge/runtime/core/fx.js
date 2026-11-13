@@ -194,13 +194,14 @@
     /** Big chunky pixels: pixelates the target (16-bit games). size = pixel size in px. */
     pixelate(L, { target, size = 8 } = {}) {
       const fid = id("pix");
-      const f = T.el("filter", { id: fid, x: "0", y: "0", width: "100%", height: "100%" }, L.defs);
-      const h = size / 2;
-      T.el("feFlood", { x: String(h), y: String(h), width: "1", height: "1" }, f);
-      T.el("feComposite", { width: String(size), height: String(size) }, f);
-      T.el("feTile", { result: "grid" }, f);
-      T.el("feComposite", { in: "SourceGraphic", in2: "grid", operator: "in" }, f);
-      T.el("feMorphology", { operator: "dilate", radius: String(h) }, f);
+      // user-space filter region so the sampling grid is aligned to the frame, not the scene's bbox
+      const f = T.el("filter", { id: fid, filterUnits: "userSpaceOnUse", primitiveUnits: "userSpaceOnUse", x: "0", y: "0", width: String(L.width), height: String(L.height) }, L.defs);
+      const h = Math.floor(size / 2);
+      T.el("feFlood", { x: String(h), y: String(h), width: "1", height: "1", "flood-color": "#000", "flood-opacity": "1" }, f);
+      T.el("feComposite", { x: "0", y: "0", width: String(size), height: String(size), operator: "over" }, f);
+      T.el("feTile", { x: "0", y: "0", width: String(L.width), height: String(L.height), result: "grid" }, f);
+      T.el("feComposite", { in: "SourceGraphic", in2: "grid", operator: "in", result: "dots" }, f);
+      T.el("feMorphology", { in: "dots", operator: "dilate", radius: String(h) }, f);
       (target || L.scene).setAttribute("filter", `url(#${fid})`);
       (target || L.scene).setAttribute("shape-rendering", "crispEdges");
       return null;

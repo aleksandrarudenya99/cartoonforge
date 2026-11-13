@@ -43,7 +43,7 @@
         go(0);
       };
       function go(t) {
-        tl.seek(t);
+        tl.seek(t, false); // false = fire onUpdate so render(t) runs
         seek.value = t;
         time.textContent = t.toFixed(2) + "s";
       }

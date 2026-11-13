@@ -91,7 +91,7 @@
   for (const p of DATA.planned) {
     grid.insertAdjacentHTML("beforeend", `
       <article class="card">
-        <div class="ph">coming soon</div>
+        <img src="media/stills/${esc(p.slug)}.jpg" alt="${esc(p.name)}" style="display:block;width:100%;aspect-ratio:9/16;object-fit:cover" onerror="this.outerHTML='<div class=ph>coming soon</div>'">
         <div class="meta"><b>${esc(p.name)}</b><span class="era">${esc(p.era)}</span><p>${esc(p.tagline)}</p></div>
       </article>`);
   }

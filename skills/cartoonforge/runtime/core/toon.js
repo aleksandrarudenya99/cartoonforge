@@ -184,6 +184,8 @@
   /**
    * Register a film with HyperFrames. `render(t)` is a pure function of time
    * that updates the DOM. GSAP is used only as the seekable clock.
+   * Seek from your own tools with `tl.seek(t, false)`: GSAP's default seek suppresses
+   * callbacks, and render(t) runs from onUpdate.
    */
   function film({ id = "main", duration, render }) {
     const clock = { t: 0 };
