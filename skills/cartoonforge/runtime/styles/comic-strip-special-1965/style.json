@@ -1,0 +1,29 @@
+{
+  "slug": "comic-strip-special-1965",
+  "name": "Comic Strip TV Special",
+  "era": "1960s–80s",
+  "group": "TV",
+  "tagline": "Thin pen line, flat muted colours, one horizon line, big sky, gentle snow.",
+  "tags": [
+    "tv special",
+    "comic strip",
+    "holiday",
+    "jazz"
+  ],
+  "music": {
+    "genre": "cooljazz",
+    "bpm": 120,
+    "fx": "tape"
+  },
+  "voice": {
+    "speed": 0.98,
+    "fx": "tv"
+  },
+  "subtitle": "a comic-strip holiday special",
+  "showcase": {
+    "gif": [
+      4.3,
+      3.4
+    ]
+  }
+}

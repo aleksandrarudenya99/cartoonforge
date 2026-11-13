@@ -4,6 +4,8 @@ Ben-Day dots, heavy outlines, print misregistration, sunburst and POP!
 
 **Lineage:** 1960s comic printing and pop art; its revival in 2018+ stylised animation.
 
+**Also fits:** 2018+ comic-book-styled animated features (halftone + offset print look).
+
 ## What defines the look
 - Heavy black outlines
 - Halftone dot fills (`halftone`)

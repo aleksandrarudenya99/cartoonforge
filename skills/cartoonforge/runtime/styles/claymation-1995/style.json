@@ -1,0 +1,29 @@
+{
+  "slug": "claymation-1995",
+  "name": "Claymation",
+  "era": "1990s–2000s",
+  "group": "Stop-motion",
+  "tagline": "Plasticine with thumbprints, chunky cosy sets, 12 poses a second with chatter.",
+  "tags": [
+    "stop-motion",
+    "clay",
+    "cosy",
+    "handmade"
+  ],
+  "music": {
+    "genre": "polka",
+    "bpm": 108,
+    "fx": "tape"
+  },
+  "voice": {
+    "speed": 1.0,
+    "fx": "storyteller"
+  },
+  "subtitle": "a claymation short",
+  "showcase": {
+    "gif": [
+      4.3,
+      3.4
+    ]
+  }
+}

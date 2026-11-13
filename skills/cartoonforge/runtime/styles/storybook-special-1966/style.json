@@ -1,0 +1,29 @@
+{
+  "slug": "storybook-special-1966",
+  "name": "Storybook TV Special",
+  "era": "1960s",
+  "group": "TV",
+  "tagline": "Impossibly curvy leaning houses, scratchy pen line, spiral snow, rhymes.",
+  "tags": [
+    "tv special",
+    "storybook",
+    "holiday",
+    "whimsical"
+  ],
+  "music": {
+    "genre": "whimsy",
+    "bpm": 108,
+    "fx": "tape"
+  },
+  "voice": {
+    "speed": 1.0,
+    "fx": "storyteller"
+  },
+  "subtitle": "a storybook holiday special",
+  "showcase": {
+    "gif": [
+      4.3,
+      3.4
+    ]
+  }
+}

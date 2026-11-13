@@ -4,6 +4,8 @@ Naive warm drawing, thatched huts, sunflowers, a wattle fence, a big moon.
 
 **Lineage:** Genre look of late-Soviet hand-drawn village shorts (not any specific film).
 
+**Also fits:** late-Soviet winter village and Arctic shorts (snowy huts, polar night) — use a snow palette.
+
 ## What defines the look
 - Thin, slightly wobbly naive line
 - Warm muted folk palette: ochre, brick, faded green

@@ -1,6 +1,6 @@
 ---
 name: cartoonforge
-description: Make short cartoon videos drawn entirely in code (SVG + headless Chrome + FFmpeg) with the user's own characters and idea, in one of 24 animation styles from 1920s silhouettes to 2020s anime looks — with captions, voice-over (free TTS or the user's own recording) and generated music — for Instagram Reels, Shorts and TikTok. Use when asked for a cartoon, animated reel or short "in style X about Y", to turn a voice recording into a cartoon, or to add a new cartoon style.
+description: Make short cartoon videos drawn entirely in code (SVG + headless Chrome + FFmpeg) with the user's own characters and idea, in one of 34 animation styles from 1920s silhouettes to 2020s anime looks — with captions, voice-over (free TTS or the user's own recording) and generated music — for Instagram Reels, Shorts and TikTok. Use when asked for a cartoon, animated reel or short "in style X about Y", to turn a voice recording into a cartoon, or to add a new cartoon style.
 ---
 
 # cartoonforge
@@ -106,9 +106,9 @@ the gallery.
 | `runtime/core/fx.js` | shared film textures + layer stack: boil, grain, paper, vignette, flicker, weave, dirt, inkBleed, cutEdge, halftone, misregister, bloom, paperShadow, hatch, pixelate, scanlines, speedLines, gradient |
 | `runtime/core/scenes.js` | title card, end card, iris / fade — themed by `style.cards` |
 | `runtime/core/shapes.js` | spiral, star, brush, cloud, ridge, wave, poly |
-| `runtime/styles/*/` | 24 style packs: `style.js` (look + scenery), `style.json` (meta, music, voice), `README.md` |
+| `runtime/styles/*/` | 34 style packs: `style.js` (look + scenery), `style.json` (meta, music, voice), `README.md` |
 | `runtime/characters/` | character spec + reference rig (`pip/rig.js`, tests only) |
-| `scripts/lib/audio/` | `instruments.mjs`, `genres.mjs` (23 genres), `fx.mjs` (voice/music/master presets) |
+| `scripts/lib/audio/` | `instruments.mjs`, `genres.mjs` (29 genres), `fx.mjs` (voice/music/master presets) |
 | `scripts/stills.mjs` | fast stills review without rendering |
 | `scripts/new-film.mjs` | scaffold a film (`--update-lib` refreshes an existing one) |
 | `scripts/audio.mjs` | TTS / recording + style voice FX + generated music + captions |

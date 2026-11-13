@@ -239,6 +239,26 @@
       };
     },
 
+    /** Clay / plasticine: bumpy lit surface + thumbprint noise on the target (stop-motion). */
+    clay(L, { target, bump = 3, freq = 0.06, light = "#fff6e8", strength = 0.45 } = {}) {
+      const fid = id("clay");
+      const f = T.el("filter", { id: fid, x: "-3%", y: "-3%", width: "106%", height: "106%" }, L.defs);
+      T.el("feTurbulence", { type: "fractalNoise", baseFrequency: String(freq), numOctaves: "3", seed: "4", result: "n" }, f);
+      T.el("feComposite", { in: "n", in2: "SourceAlpha", operator: "in", result: "nb" }, f);
+      const dl = T.el("feDiffuseLighting", { in: "nb", "lighting-color": light, surfaceScale: String(bump), result: "lit" }, f);
+      T.el("feDistantLight", { azimuth: "235", elevation: "50" }, dl);
+      T.el("feComposite", { in: "SourceGraphic", in2: "lit", operator: "arithmetic", k1: String(strength * 1.6), k2: String(1 - strength * 0.6), k3: "0", k4: "0", result: "c" }, f);
+      T.el("feComposite", { in: "c", in2: "SourceAlpha", operator: "in" }, f);
+      (target || L.scene).setAttribute("filter", `url(#${fid})`);
+      return null;
+    },
+
+    /** Stop-motion "chatter": the whole set shifts a pixel or two on every new pose. */
+    chatter(L, { amount = 1.5, dps = 12, target } = {}) {
+      const g = target || L.scene;
+      return { update: (t) => { const i = T.drawingIndex(t, dps); g.setAttribute("transform", `translate(${(T.hash(91, i) * amount).toFixed(2)},${(T.hash(97, i) * amount).toFixed(2)})`); } };
+    },
+
     /** Background gradient (sky, stage light). stops: [[offset%, colour], …] */
     gradient(L, { stops, vertical = true, radial = false } = {}) {
       const gid = id("bg");

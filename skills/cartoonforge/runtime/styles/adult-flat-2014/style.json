@@ -1,0 +1,29 @@
+{
+  "slug": "adult-flat-2014",
+  "name": "Adult Flat Comedy",
+  "era": "2010s",
+  "group": "TV",
+  "tagline": "Flat, thin-lined, muted everyday sitcom sets with acid sci-fi rifts.",
+  "tags": [
+    "adult",
+    "comedy",
+    "flat",
+    "sci-fi"
+  ],
+  "music": {
+    "genre": "lofi",
+    "bpm": 110,
+    "fx": "broadcast"
+  },
+  "voice": {
+    "speed": 1.0,
+    "fx": "tv"
+  },
+  "subtitle": "an adult animated comedy",
+  "showcase": {
+    "gif": [
+      4.3,
+      3.4
+    ]
+  }
+}

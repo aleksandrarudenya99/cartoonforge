@@ -1,0 +1,29 @@
+{
+  "slug": "gothic-stopmotion-2009",
+  "name": "Gothic Stop-Motion",
+  "era": "1990s–2010s",
+  "group": "Stop-motion",
+  "tagline": "Spindly puppets, a spiral hill, bare twisted trees, a huge moon, cold night.",
+  "tags": [
+    "stop-motion",
+    "gothic",
+    "spooky",
+    "puppets"
+  ],
+  "music": {
+    "genre": "gothic",
+    "bpm": 88,
+    "fx": "hall"
+  },
+  "voice": {
+    "speed": 0.96,
+    "fx": "shadow"
+  },
+  "subtitle": "a gothic stop-motion tale",
+  "showcase": {
+    "gif": [
+      4.3,
+      3.4
+    ]
+  }
+}

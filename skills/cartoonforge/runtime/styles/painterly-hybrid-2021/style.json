@@ -1,0 +1,29 @@
+{
+  "slug": "painterly-hybrid-2021",
+  "name": "Painterly Hybrid",
+  "era": "2020s",
+  "group": "Modern",
+  "tagline": "Brush strokes painted over volume, graphic shadows, neon in smoky industrial dusk.",
+  "tags": [
+    "painterly",
+    "hybrid",
+    "2d/3d",
+    "neon"
+  ],
+  "music": {
+    "genre": "hybrid",
+    "bpm": 96,
+    "fx": "cinema"
+  },
+  "voice": {
+    "speed": 0.98,
+    "fx": "hero"
+  },
+  "subtitle": "a painterly hybrid tale",
+  "showcase": {
+    "gif": [
+      4.3,
+      3.4
+    ]
+  }
+}

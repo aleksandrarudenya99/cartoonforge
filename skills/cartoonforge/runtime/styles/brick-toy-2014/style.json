@@ -1,0 +1,29 @@
+{
+  "slug": "brick-toy-2014",
+  "name": "Brick Toy Animation",
+  "era": "2010s",
+  "group": "Stop-motion",
+  "tagline": "A world built from generic plastic bricks: studs, gloss, stepped clouds.",
+  "tags": [
+    "toys",
+    "bricks",
+    "plastic",
+    "build"
+  ],
+  "music": {
+    "genre": "adventure",
+    "bpm": 128,
+    "fx": "none"
+  },
+  "voice": {
+    "speed": 1.04,
+    "fx": "tv"
+  },
+  "subtitle": "a brick-built cartoon",
+  "showcase": {
+    "gif": [
+      4.3,
+      3.4
+    ]
+  }
+}

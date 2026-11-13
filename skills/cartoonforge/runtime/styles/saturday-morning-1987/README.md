@@ -4,6 +4,8 @@ Clean TV cels, bold primaries, airbrushed skies, harbour adventures.
 
 **Lineage:** Genre look of 1980s TV adventure cartoons (not any specific series).
 
+**Also fits:** 1980s TV adventure series about treasure-hunting animal families.
+
 ## What defines the look
 - Clean black line, bold primary fills, simple cel-shadow
 - Airbrushed sunset sky

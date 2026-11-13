@@ -1,0 +1,29 @@
+{
+  "slug": "storybook-flat-2018",
+  "name": "Storybook Flat Adventure",
+  "era": "2010s",
+  "group": "Modern",
+  "tagline": "Flat picture-book shapes, limited palette, Nordic mountains and a gentle giant.",
+  "tags": [
+    "flat",
+    "storybook",
+    "nordic",
+    "folklore"
+  ],
+  "music": {
+    "genre": "nordic",
+    "bpm": 100,
+    "fx": "tape"
+  },
+  "voice": {
+    "speed": 1.0,
+    "fx": "storyteller"
+  },
+  "subtitle": "a storybook adventure",
+  "showcase": {
+    "gif": [
+      4.3,
+      3.4
+    ]
+  }
+}

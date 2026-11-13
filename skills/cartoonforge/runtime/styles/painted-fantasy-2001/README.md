@@ -4,6 +4,8 @@ Watercolour skies, towering clouds, wind through tall grass, lantern light.
 
 **Lineage:** Genre look of hand-painted Japanese fantasy features (not any specific film or studio).
 
+**Also fits:** hand-painted fantasy features with walking castles, sea-children and rain-world fables.
+
 ## What defines the look
 - Watercolour paper texture, painted gradients
 - Towering summer cumulus, deep greens

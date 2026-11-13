@@ -4,6 +4,8 @@ Night city, deep black shadows, violet auras that crackle, glitch on impact.
 
 **Lineage:** Genre look of 2020s supernatural action anime (not any specific series).
 
+**Also fits:** dark urban horror anime (masks, night city, red/black accents).
+
 ## What defines the look
 - Night skyline with cold windows, neon
 - Violet/electric-blue auras with jittering outline

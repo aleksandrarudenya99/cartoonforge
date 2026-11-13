@@ -1,0 +1,29 @@
+{
+  "slug": "round-kids-2004",
+  "name": "Round Kids Toon",
+  "era": "2000s",
+  "group": "TV",
+  "tagline": "Characters made of circles, rolling green hills, bright friendly colours.",
+  "tags": [
+    "kids",
+    "round",
+    "gentle",
+    "bright"
+  ],
+  "music": {
+    "genre": "kids",
+    "bpm": 112,
+    "fx": "none"
+  },
+  "voice": {
+    "speed": 1.06,
+    "fx": "cartoon"
+  },
+  "subtitle": "a round little cartoon",
+  "showcase": {
+    "gif": [
+      4.3,
+      3.4
+    ]
+  }
+}

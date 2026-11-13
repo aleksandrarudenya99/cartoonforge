@@ -1,0 +1,29 @@
+{
+  "slug": "sky-anime-2016",
+  "name": "Hyperreal Sky Anime",
+  "era": "2010s",
+  "group": "Anime",
+  "tagline": "Photographic twilight skies, a comet trail, glittering city lights, lens flares.",
+  "tags": [
+    "anime",
+    "sky",
+    "romance",
+    "twilight"
+  ],
+  "music": {
+    "genre": "ballad",
+    "bpm": 84,
+    "fx": "cinema"
+  },
+  "voice": {
+    "speed": 0.97,
+    "fx": "airy"
+  },
+  "subtitle": "a twilight anime",
+  "showcase": {
+    "gif": [
+      4.3,
+      3.4
+    ]
+  }
+}

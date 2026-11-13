@@ -4,6 +4,8 @@ The family 3D feature look in 2D: soft gradients, rim light, sunny rounded city.
 
 **Lineage:** Genre look of 2010s family 3D features (not any specific film).
 
+**Also fits:** family 3D features and specials about emotions, superhero families, holiday elves and legendary guardians.
+
 ## What defines the look
 - No outlines; volume from gradients
 - Warm key light + cool rim light

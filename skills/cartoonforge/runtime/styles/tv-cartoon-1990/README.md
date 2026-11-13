@@ -4,6 +4,8 @@ Bright flat colours, even thick outlines, suburban street, a broadcast feel.
 
 **Lineage:** Genre look of 90s prime-time TV animation (not any specific series).
 
+**Also fits:** 90s prime-time family sitcom cartoons about kids growing up.
+
 ## What defines the look
 - Flat bright fills, even thick dark-brown outlines
 - Suburban houses, lawn, sidewalk, fence

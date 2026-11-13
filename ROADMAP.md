@@ -15,7 +15,7 @@
 |---|---|---|
 | 0. Foundation | research, repo, core helpers, Rubber Hose 1930, mascot Pip, first reel | ✅ done |
 | 1. Skill | installable Claude Code skill/plugin; captions, voice (TTS or **your own recording, treated by the style**) and generated music; GitHub showcase (README gallery + Pages) | ✅ done |
-| 2. All styles | 24 genre/era styles (1920s silhouettes → 2020s anime looks), shared video core + shared audio lib | ✅ added, not yet rendered |
+| 2. All styles | 34 genre/era styles (1920s silhouettes → 2020s anime, stop-motion, toy bricks), shared video core + shared audio lib | ✅ added, not yet rendered |
 | 3. Testing | run every style with test characters and ideas, render, fix, fill the gallery | next |
 | 4. Your characters | character spec / sketch / photo → rig in any style (shared body-part kit, style shading modes) | then |
 | 5. Formats | reel templates: explainer, joke, quote, announcement, loop | later |

@@ -7,7 +7,7 @@
  *   waltz       3/4 music-box melody over soft strings-like pad          (Silhouette 1920s fairy tale)
  *   pentatonic  plucked zither + breathy flute, lots of space            (Ink-wash 1960)
  *   lofi        mellow 7ths, soft kick + hat                             (cozy / modern)
- *   + recipe genres (data, see RECIPES): polka, funk, citypop, epic, sitcom, chiptune, eerie,
+ *   + recipe genres (data, see RECIPES): polka, funk, citypop, epic, sitcom, chiptune, eerie, nordic, kids, ballad, gothic, whimsy, hybrid,
  *     occult, nihonga, ukiyoe, feature, cgi, winter, folk, adventure, sparkle, zany, saturday
  *
  * Add a genre: write compose<Name>(tr, ctx) and register it in GENRES. Keep it original:
@@ -169,6 +169,12 @@ const RECIPES = {
   adventure: { prog: CH.pop, scale: SCALES.major, bass: { inst: "bass", beats: [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5], octave: -24 }, chords: { inst: "saw", beats: [0, 2], len: 1.6, vel: 0.05 }, lead: { inst: "saw", density: 0.55, octave: 12, steps: 8, vel: 0.07 }, drums: { kick: [0, 1.5, 2], snare: [1, 3], hat: "8" } },
   sparkle: { prog: CH.citypop, scale: SCALES.major, bass: { inst: "tri", beats: [0, 1, 2, 3], octave: -24 }, chords: { inst: "pad", beats: [0], len: 3.8, vel: 0.06 }, lead: { inst: "bell", density: 0.65, octave: 12, steps: 8 }, drums: { kick: [0, 2], snare: [1, 3], hat: "8" } },
   zany: { prog: CH.pop, scale: SCALES.major, bass: { inst: "tri", beats: [0, 1, 2, 3], octave: -24, walk: true }, chords: { inst: "pluck", beats: [1, 3], len: 0.2 }, lead: { inst: "square", density: 0.6, octave: 12, steps: 8, vel: 0.05, duty: 0.25 }, drums: { kick: [0, 2], snare: [1, 3], woodblock: [0.5, 2.5, 3.25] } },
+  nordic: { meter: 3, prog: CH.folkMinor, scale: SCALES.dorian, bass: { inst: "bass", beats: [0], octave: -24 }, chords: { inst: "pluck", beats: [0, 1, 2], len: 0.3 }, lead: { inst: "flute", density: 0.6, octave: 12, steps: 3, len: 0.9, vel: 0.09 }, drums: { taiko: [0] } },
+  kids: { prog: CH.pop, scale: SCALES.penta, bass: { inst: "upright", beats: [0, 2], octave: -24 }, chords: { inst: "pluck", beats: [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5], len: 0.2 }, lead: { inst: "bell", density: 0.6, octave: 12, steps: 8 }, drums: { woodblock: [1, 3], kick: [0, 2] } },
+  ballad: { prog: CH.feature, scale: SCALES.major, bass: { inst: "bass", beats: [0, 2], octave: -24 }, chords: { inst: "piano", beats: [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5], len: 0.45, vel: 0.06, arp: true }, lead: { inst: "piano", density: 0.45, octave: 12, steps: 8, vel: 0.14 }, drums: { kick: [0, 2.5], snare: [1, 3], hat: "8" } },
+  gothic: { meter: 3, prog: CH.folkMinor, scale: SCALES.harmMinor, bass: { inst: "bass", beats: [0], octave: -24 }, chords: { inst: "reed", beats: [1, 2], len: 0.4, vel: 0.05 }, lead: { inst: "bell", density: 0.7, octave: 12, steps: 6 }, drums: { woodblock: [0] } },
+  whimsy: { prog: CH.sitcom, scale: SCALES.major, bass: { inst: "upright", beats: [0, 1, 2, 3], octave: -24, walk: true }, chords: { inst: "vibes", beats: [1.5, 3], len: 0.4, vel: 0.06 }, lead: { inst: "bell", density: 0.5, octave: 12, steps: 8 }, drums: { brush: true, snare: [1, 3] }, swing: 0.16 },
+  hybrid: { prog: CH.minorDark, scale: SCALES.minor, bass: { inst: "saw", beats: [0, 0.5, 1.5, 2, 2.5, 3.5], octave: -24, vel: 0.09 }, chords: { inst: "pad", beats: [0], len: 3.8, vel: 0.07 }, lead: { inst: "pluck", density: 0.45, octave: 12, steps: 8 }, drums: { kick: [0, 2], snare: [1, 3], hat: "16", taiko: [3.5] } },
   saturday: { prog: CH.minorEpic, scale: SCALES.minor, bass: { inst: "saw", beats: [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5], octave: -24, vel: 0.08 }, chords: { inst: "saw", beats: [0, 1.5, 3], len: 0.3, vel: 0.05 }, lead: { inst: "square", density: 0.5, octave: 12, steps: 8, vel: 0.05 }, drums: { kick: [0, 2], snare: [1, 3], hat: "8" } },
 };
 
