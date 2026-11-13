@@ -1,0 +1,10 @@
+{
+  "slug": "rubber-hose-1930",
+  "name": "Rubber Hose",
+  "era": "1920s–1930s",
+  "tagline": "Bendy limbs, pie-cut eyes, black ink on old film. Everything bounces to the music.",
+  "tags": ["vintage", "black & white", "jazz age", "cartoon"],
+  "music": { "genre": "ragtime", "bpm": 120, "lofi": "gramophone" },
+  "voice": { "speed": 1.08, "fx": "gramophone" },
+  "subtitle": "a rubber hose cartoon · 1930"
+}

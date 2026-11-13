@@ -2,7 +2,7 @@
 <!--
   Dev viewer: scrub and play any film without rendering.
   npx serve .   (or IntelliJ: right-click viewer.html → Open in Browser)
-  then open /viewer.html?film=hello-pip
+  then open /viewer.html?film=rubber-hose-1930   (any folder in examples/ or cartoons/)
 -->
 <html lang="en">
   <head>
@@ -27,13 +27,16 @@
     <script>
       const k = Math.min((innerHeight - 90) / 1920, 1);
       document.documentElement.style.setProperty("--k", k.toFixed(3));
-      const film = new URLSearchParams(location.search).get("film") || "hello-pip";
+      const q = new URLSearchParams(location.search);
+      const film = q.get("film") || "rubber-hose-1930";
+      const base = `${q.get("dir") || "examples"}/${film}`;
+      const audio = new Audio(`${base}/assets/soundtrack.wav`);
       const frame = document.getElementById("frame");
       const seek = document.getElementById("seek");
       const time = document.getElementById("time");
       const play = document.getElementById("play");
       let tl, playing = false, t0 = 0, start = 0;
-      frame.src = `films/${film}/index.html`;
+      frame.src = `${base}/index.html`;
       frame.onload = () => {
         tl = frame.contentWindow.__timelines.main;
         seek.max = tl.duration();
@@ -44,18 +47,19 @@
         seek.value = t;
         time.textContent = t.toFixed(2) + "s";
       }
-      seek.oninput = () => { playing = false; play.textContent = "▶"; go(+seek.value); };
+      seek.oninput = () => { playing = false; audio.pause(); play.textContent = "▶"; go(+seek.value); };
       play.onclick = () => {
         playing = !playing;
         play.textContent = playing ? "❚❚" : "▶";
         t0 = +seek.value >= tl.duration() ? 0 : +seek.value;
         start = performance.now();
+        if (playing) { audio.currentTime = t0; audio.play().catch(() => {}); } else audio.pause();
         requestAnimationFrame(loop);
       };
       function loop(now) {
         if (!playing) return;
         const t = t0 + (now - start) / 1000;
-        if (t >= tl.duration()) { go(tl.duration()); playing = false; play.textContent = "▶"; return; }
+        if (t >= tl.duration()) { go(tl.duration()); playing = false; audio.pause(); play.textContent = "▶"; return; }
         go(t);
         requestAnimationFrame(loop);
       }

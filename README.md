@@ -1,78 +1,115 @@
+<div align="center">
+
 # cartoonforge
 
 **Cartoons drawn entirely in code — in the styles that made animation history.**
 
-No video model, no stock footage, no After Effects. Every frame is SVG/Canvas drawn by
-code, captured by headless Chrome and encoded by FFmpeg. Built to be driven by coding
-agents (Claude Code and friends) and tuned for vertical 9:16 Reels / Shorts / TikTok.
+Pick a style · write a few lines (or record your voice) · get a 9:16 reel with voice, music and captions.
 
-| | |
-|---|---|
-| Engine | [HyperFrames](https://github.com/heygen-com/hyperframes) (Apache-2.0): HTML → MP4 |
-| Clock | [GSAP](https://gsap.com) timeline, used only as a seekable clock |
-| Drawing | plain SVG + `core/toon.js` (no dependencies) |
-| License | MIT |
+[**▶ Watch the styles**](https://aleksandrarudenya99.github.io/cartoonforge) · [Install](#install) · [How it works](#how-it-works) · [Roadmap](ROADMAP.md)
 
-## Idea
-
-A cartoon style is not a filter. It is five layers, and each one is code:
-
-1. **Shape & line** — rubber-hose limbs, flat UPA shapes, cut-out pins…
-2. **Palette** — 3–6 colours per style.
-3. **Timing** — animate *on twos* (12 drawings/s), hold poses, bounce to the beat.
-4. **Animation principles** — squash & stretch, anticipation, follow-through, arcs.
-5. **Film texture** — line boil, grain, dirt, flicker, gate weave, halftone…
-
-So the project is split the same way:
-
-```
-core/toon.js                 pure helpers: onTwos, track, squash, hose, seeded noise, film()
-styles/<style>/style.js      a style pack: palette + motion rules + film texture
-characters/<name>/rig.js     a character rig: build once, pose(p) every frame
-films/<film>/index.html      a film: render(t) is a pure function of time
-.claude/skills/              skills so an agent can make a film from one sentence
-```
-
-The same character rig can be skinned by any style pack — that's the point.
-
-## Quick start
-
-Requirements: Node ≥ 22, FFmpeg, Google Chrome.
-
-```bash
-npm install
-npm run dev                         # open http://localhost:3000/viewer.html?film=hello-pip
-npm run render:draft -- hello-pip   # fast preview  → renders/hello-pip.draft.mp4
-npm run render -- hello-pip         # Reels quality → renders/hello-pip.mp4
-```
-
-If HyperFrames can't download its own Chrome: `export HYPERFRAMES_BROWSER_PATH=$(which google-chrome)`.
-
-## The one rule: determinism
-
-The renderer may ask for frame 212 before frame 3, or the same frame twice. A film must
-draw the same picture for the same `t`. So: no `Math.random()` (use `Toon.rng(seed)`),
-no `Date.now()`, no CSS animations that run on their own.
+</div>
 
 ## Styles
 
-| Style | Status |
+<!-- gallery:start -->
+<table>
+<tr>
+<td align="center" width="33%"><a href="https://aleksandrarudenya99.github.io/cartoonforge/#rubber-hose-1930"><img src="docs/media/rubber-hose-1930.gif" width="200" alt="Rubber Hose"></a><br><b>Rubber Hose</b> · 1920s–1930s<br><sub>Bendy limbs, pie-cut eyes, black ink on old film. Everything bounces to the music.</sub></td>
+<td align="center" width="33%"><br><br><b>UPA Modern</b> · 1950s<br><sub>Flat graphic shapes, bold colour, limited animation.</sub><br><sub><i>coming soon</i></sub><br><br></td>
+<td align="center" width="33%"><br><br><b>Paper Cut-out</b> · 1990s<br><sub>Pinned paper parts, construction-paper textures.</sub><br><sub><i>coming soon</i></sub><br><br></td>
+</tr>
+<tr>
+<td align="center" width="33%"><br><br><b>Cel Anime</b> · 1980s<br><sub>Cel shading, speed lines, dramatic framing.</sub><br><sub><i>coming soon</i></sub><br><br></td>
+<td align="center" width="33%"><br><br><b>Comic Halftone</b> · 1960s<br><sub>Ben-Day dots, misregistered print, bold panels.</sub><br><sub><i>coming soon</i></sub><br><br></td>
+<td align="center" width="33%"><br><br><b>Claymation</b> · stop-motion<br><sub>Squishy clay, thumbprints, 12 fps wobble.</sub><br><sub><i>coming soon</i></sub><br><br></td>
+</tr>
+</table>
+
+▶ **Watch them with sound:** https://aleksandrarudenya99.github.io/cartoonforge
+<!-- gallery:end -->
+
+## Install
+
+cartoonforge is a **skill for coding agents**. In Claude Code:
+
+```text
+/plugin marketplace add aleksandrarudenya99/cartoonforge
+/plugin install cartoonforge@cartoonforge
+```
+
+or with the open skills CLI (Claude Code, Cursor, Codex, Gemini CLI…):
+
+```bash
+npx skills add aleksandrarudenya99/cartoonforge
+```
+
+Then just ask:
+
+> Make a 15-second reel in rubber hose style about my coffee shop opening on Saturday.
+
+> Here's my voice recording — turn it into a rubber hose cartoon with captions.
+
+Requirements: **Node ≥ 22, FFmpeg, Google Chrome**. For the good free voice: `pip install kokoro soundfile`
+(without it the skill falls back to macOS `say` or espeak-ng).
+
+## How it works
+
+No video model, no stock footage. Every frame is SVG drawn by code, captured by headless Chrome
+([HyperFrames](https://github.com/heygen-com/hyperframes), Apache-2.0) and encoded by FFmpeg.
+
+A cartoon style is not a filter. It is five layers, and each one is code:
+
+| Layer | Example (Rubber Hose · 1930) |
 |---|---|
-| Rubber Hose · 1930 | ✅ `styles/rubber-hose-1930` |
-| UPA / mid-century modern · 1950 | planned |
-| Paper cut-out | planned |
-| 80s cel anime | planned |
-| Comic halftone | planned |
-| Claymation | planned |
+| Shape & line | one-curve "hose" limbs, pie-cut eyes, white gloves |
+| Palette | black ink, warm paper, one grey |
+| Timing | animated on twos (12 drawings/s), everything bounces at 120 bpm |
+| Principles | big squash & stretch, anticipation before every jump |
+| Texture | line boil, grain, dust, scratches, flicker, gate weave |
 
-## Contributing a style
+Plus sound, also per style: **captions** in the era's lettering, a **voice** (free TTS or your own
+recording, treated by the style — e.g. a gramophone voice for the 1930s) and **music generated by
+code** in the style's genre (ragtime for rubber hose), ducked under the voice and mastered to −14 LUFS
+for Instagram.
 
-1. Copy `styles/rubber-hose-1930` to `styles/<your-style>`.
-2. Write its `README.md` (what defines the look, with references) and `style.js` (`palette`, `motion`, `install()`).
-3. Re-skin Pip in it and add a 10-second film in `films/`.
+```
+skills/cartoonforge/
+  SKILL.md                     what the agent follows
+  runtime/core/toon.js         pure helpers: onTwos, track, squash, hose, captions, seeded noise
+  runtime/styles/<style>/      style packs: style.js (look) + style.json (music, voice, gallery info)
+  runtime/characters/pip/      the mascot rig — build once, pose(p) every frame
+  scripts/new-film.mjs         scaffold a film
+  scripts/audio.mjs            voice (TTS or your recording) + music + captions
+  scripts/render.mjs           MP4 + contact sheet for review
+examples/<style>/              Pip in every style (source of the gallery)
+```
 
-Please only draw original characters. Styles are free to use; specific studio characters are not.
+## Develop
+
+```bash
+npm install                            # also copies the runtime into examples/*/lib
+npm run dev                            # http://localhost:3000/viewer.html?film=rubber-hose-1930
+npm run render -- examples/rubber-hose-1930 --draft
+npm run showcase                       # re-render every style, rebuild README gallery + Pages site
+```
+
+### Add a style
+
+1. Read [`references/new-style.md`](skills/cartoonforge/references/new-style.md).
+2. Create `skills/cartoonforge/runtime/styles/<slug>/` with `README.md`, `style.js`, `style.json`.
+3. `npm run showcase -- <slug>` — renders Pip in your style and adds the tile to the gallery.
+
+## Legal notes
+
+- Art **styles** are free to use; specific characters are not. Only draw **original characters**.
+  No studio characters, logos or famous catchphrases.
+- Music is generated by code → free to use. Don't commit other people's music.
+- Voices: [Kokoro](https://github.com/hexgrad/kokoro) is Apache-2.0 (commercial use OK). Most Piper
+  voices are non-commercial, so they are not used. Never clone someone else's voice.
+
+This is not legal advice.
 
 ## License
 
-MIT — see [LICENSE](LICENSE). GSAP and HyperFrames keep their own licenses.
+MIT — see [LICENSE](LICENSE). HyperFrames (Apache-2.0) and GSAP keep their own licenses.

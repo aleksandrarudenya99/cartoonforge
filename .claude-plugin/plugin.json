@@ -1,0 +1,10 @@
+{
+  "name": "cartoonforge",
+  "version": "0.2.0",
+  "description": "Render short cartoons entirely in code in classic animation styles — with voice, music and captions — for Instagram Reels, Shorts and TikTok.",
+  "author": { "name": "Aliaksandra Rudzenia", "url": "https://github.com/aleksandrarudenya99" },
+  "homepage": "https://aleksandrarudenya99.github.io/cartoonforge",
+  "repository": "https://github.com/aleksandrarudenya99/cartoonforge",
+  "license": "MIT",
+  "keywords": ["animation", "cartoon", "video", "reels", "svg", "hyperframes"]
+}

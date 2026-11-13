@@ -3,11 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=1080, height=1920" />
-    <title>Hello, Pip — Rubber Hose 1930</title>
-    <script src="../../node_modules/gsap/dist/gsap.min.js"></script>
-    <script src="../../core/toon.js"></script>
-    <script src="../../styles/rubber-hose-1930/style.js"></script>
-    <script src="../../characters/pip/rig.js"></script>
+    <title>{{TITLE}}</title>
+    <script src="node_modules/gsap/dist/gsap.min.js"></script>
+    <script src="lib/core/toon.js"></script>
+    <script src="lib/styles/{{STYLE}}/style.js"></script>
+    <script src="lib/characters/pip/rig.js"></script>
+    <!-- written by scripts/audio.mjs: duration, caption cues -->
+    <script src="cf-data.js"></script>
     <style>
       html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #000; }
       #root { width: 100%; height: 100%; }
@@ -16,6 +18,7 @@
   </head>
   <body>
     <div id="root" data-composition-id="main" data-start="0" data-duration="10" data-fps="24" data-width="1080" data-height="1920">
+      <!-- cf:audio -->
       <svg id="stage" class="clip" data-start="0" data-duration="10" data-track-index="0"
            xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920"></svg>
     </div>
@@ -27,14 +30,16 @@
        *   1.6–4.4  Pip walks in, the world bounces to 120 bpm
        *   4.4–5.0  stops, looks at camera, blinks
        *   5.0–6.8  anticipation → jump (stretch) → land (squash) → settle
-       *   6.8–8.6  waves hello
-       *   8.6–10   iris out on Pip, end card
+       *   6.8–end  waves hello (holds while the voice-over finishes)
+       *   last 1.4 s  iris out on Pip, end card
        */
       const W = 1080, H = 1920, GROUND = 1480;
       const T = Toon, { track, seg, onTwos, ease } = T;
-      const style = T.styles["rubber-hose-1930"];
+      const style = T.styles["{{STYLE}}"];
       const P = style.palette;
       const BEAT = 60 / style.motion.bpm;
+      const CF = window.CF || { duration: 10, captions: [] };
+      const DUR = CF.duration;
 
       const svg = document.getElementById("stage");
       const look = style.install(svg, { width: W, height: H });
@@ -57,7 +62,7 @@
       T.el("path", { d: "M-90,-60 C-60,-110 -10,-110 10,-70", fill: "none", stroke: P.white, "stroke-width": 12, "stroke-linecap": "round" }, crown);
 
       // bobbing clouds
-      const clouds = [[240, 380, 1], [800, 300, 0.8]].map(([x, y, s]) => {
+      const clouds = [[230, 215, 0.9], [830, 170, 0.75]].map(([x, y, s]) => {
         const c = T.el("g", {}, g);
         T.el("path", { d: "M-120,20 C-150,-30 -90,-70 -50,-50 C-30,-100 50,-100 70,-50 C120,-70 160,-20 120,20 Z", fill: P.white, ...line, fill: P.white }, c);
         return { c, x, y, s };
@@ -77,6 +82,8 @@
       const pip = T.characters.pip.build(g, { ink: P.ink, white: P.white, lineWidth: lw });
 
       // ---------- overlay: iris + title / end cards (not boiled)
+      const capLayer = T.el("g", {}, look.overlay);
+      const updateCaptions = T.captions(capLayer, CF.captions, style.caption || {});
       const iris = T.el("path", { fill: "#0b0a09", "fill-rule": "evenodd" }, look.overlay);
       const card = T.el("g", {}, look.overlay);
       T.el("rect", { x: 0, y: 0, width: W, height: H, fill: P.ink }, card);
@@ -85,8 +92,8 @@
       const txt = (s, y, size, extra = {}) => { const n = T.el("text", { x: W / 2, y, "text-anchor": "middle", fill: P.paper, "font-family": "Georgia, 'DejaVu Serif', serif", "font-size": size, ...extra }, card); n.textContent = s; return n; };
       txt("CARTOONFORGE", 760, 64, { "letter-spacing": 14 });
       txt("presents", 840, 44, { "font-style": "italic" });
-      txt("Hello, Pip!", 1010, 128, { "font-weight": "bold" });
-      txt("— a rubber hose cartoon · 1930 —", 1160, 38, { "font-style": "italic" });
+      txt("{{TITLE}}", 1010, 112, { "font-weight": "bold" });
+      txt("— {{SUBTITLE}} —", 1160, 38, { "font-style": "italic" });
       const end = T.el("g", { opacity: 0 }, look.overlay);
       const endTxt = (s, y, size, extra = {}) => { const n = T.el("text", { x: W / 2, y, "text-anchor": "middle", fill: P.paper, "font-family": "Georgia, 'DejaVu Serif', serif", "font-size": size, ...extra }, end); n.textContent = s; return n; };
       endTxt("The End", 940, 110, { "font-style": "italic", "font-weight": "bold" });
@@ -99,6 +106,7 @@
       function render(tRaw) {
         const t = onTwos(tRaw); // drawings change 12×/s
         look.update(tRaw);
+        updateCaptions(t);
 
         // world bounce: a squash on every beat
         const beatPhase = (t % BEAT) / BEAT;
@@ -123,11 +131,11 @@
         const s = Math.sin(stride);
 
         // jump: anticipation (5.0–5.6) → air (5.6–6.4) → land (6.4–6.8)
-        const jumpY = track(t, [[5.6, 0], [6.0, -360, "outQuad"], [6.4, 0, "inQuad"]]);
+        const jumpY = track(t, [[5.6, 0], [6.0, -250, "outQuad"], [6.4, 0, "inQuad"]]);
         let sq = walking * -0.05 * Math.abs(Math.cos(stride));
         sq += track(t, [[5.0, 0], [5.5, -0.28, "outQuad"], [5.65, 0.3, "outQuad"], [6.0, 0.08], [6.4, 0.18, "inQuad"], [6.5, -0.34, "outQuad"], [6.9, 0, "outElastic"]]);
 
-        const wave = seg(t, 6.8, 7.1) * (1 - seg(t, 8.4, 8.7));
+        const wave = seg(t, 6.8, 7.1) * (1 - seg(t, DUR - 1.6, DUR - 1.3));
         const waveSwing = Math.sin((t - 6.8) * 9) * 60;
         const crouch = track(t, [[5.0, 0], [5.5, 1], [5.65, 0]]);
         const air = track(t, [[5.6, 0], [5.8, 1], [6.3, 1], [6.45, 0]]);
@@ -147,7 +155,7 @@
           bendR: -40 + wave * 70,
           look: track(t, [[4.4, 0], [4.6, 0.6], [6.8, 0.6], [7.0, 0]]),
           blink: seg(t, 4.75, 4.83) * (1 - seg(t, 4.83, 4.92)) + seg(t, 7.9, 7.98) * (1 - seg(t, 7.98, 8.06)),
-          mouth: track(t, [[5.5, 0], [5.7, 0.9], [6.4, 0.9], [6.6, 0.3], [7.0, 0.6], [8.4, 0.6], [8.6, 0.1]]),
+          mouth: track(t, [[5.5, 0], [5.7, 0.9], [6.4, 0.9], [6.6, 0.3], [7.0, 0.6], [DUR - 1.6, 0.6], [DUR - 1.4, 0.1]]),
           sprout: Math.sin(t * 7) * 10 + track(t, [[5.6, 0], [5.8, -25], [6.4, 30], [6.8, 0, "outElastic"]]),
         });
 
@@ -155,13 +163,13 @@
         card.setAttribute("opacity", String(1 - seg(t, 1.3, 1.45)));
         let irisR;
         if (t < 1.6) irisR = track(t, [[1.3, 0], [1.6, 1300, "outQuad"]]);
-        else irisR = track(t, [[8.6, 1300], [9.2, 230, "inOutSine"], [9.45, 0, "inQuad"]]);
+        else irisR = track(t, [[DUR - 1.4, 1300], [DUR - 0.8, 230, "inOutSine"], [DUR - 0.55, 0, "inQuad"]]);
         const cy = GROUND - 500;
         iris.setAttribute("d", irisPath(t < 5 ? W / 2 : x, cy, Math.max(0, irisR)));
-        end.setAttribute("opacity", seg(t, 9.45, 9.6).toFixed(2));
+        end.setAttribute("opacity", seg(t, DUR - 0.55, DUR - 0.4).toFixed(2));
       }
 
-      T.film({ id: "main", duration: 10, render });
+      T.film({ id: "main", duration: DUR, render });
     </script>
   </body>
 </html>

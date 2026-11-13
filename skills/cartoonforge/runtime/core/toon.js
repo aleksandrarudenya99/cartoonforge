@@ -109,6 +109,77 @@
     for (const k in attrs) node.setAttribute(k, attrs[k]);
   }
 
+  // ------------------------------------------------------------- captions
+  /**
+   * Burned-in captions with words popping in as they are spoken.
+   * cues: [{start, end, text}] (written by scripts/audio.mjs into cf-data.js)
+   * opts: {x, y, size, font, fill, stroke, strokeWidth, maxWidth, weight, style, pop}
+   * Returns update(t). Word timing inside a cue is proportional to word length.
+   */
+  function captions(parent, cues, opts = {}) {
+    const o = Object.assign(
+      { x: 540, y: 380, size: 72, font: "sans-serif", fill: "#fff", stroke: "#000", strokeWidth: 12,
+        maxWidth: 920, weight: "bold", style: "normal", pop: 0.12, lineHeight: 1.15 },
+      opts,
+    );
+    const g = el("g", { "text-anchor": "middle" }, parent);
+    // measure real word widths with the actual font (same machine + font → same layout every frame)
+    const probe = el("text", { "font-family": o.font, "font-size": o.size, "font-weight": o.weight, "font-style": o.style, opacity: 0 }, g);
+    const widthOf = (s) => { probe.textContent = s; return probe.getComputedTextLength(); };
+    const space = (widthOf("a a") - widthOf("aa") || o.size * 0.28) + o.size * 0.1;
+    const built = cues.map((cue) => {
+      const words = cue.text.split(/\s+/).filter(Boolean);
+      const total = words.reduce((s, w) => s + w.length + 1, 0);
+      let acc = 0;
+      const timed = words.map((w) => {
+        const at = cue.start + ((cue.end - cue.start) * 0.9 * acc) / total;
+        acc += w.length + 1;
+        return { w, at, width: widthOf(w) };
+      });
+      // greedy wrap
+      const lines = [[]];
+      let width = 0;
+      for (const tw of timed) {
+        const add = (lines[lines.length - 1].length ? space : 0) + tw.width;
+        if (width + add > o.maxWidth && lines[lines.length - 1].length) { lines.push([]); width = 0; }
+        width += lines[lines.length - 1].length ? space + tw.width : tw.width;
+        lines[lines.length - 1].push(tw);
+      }
+      const group = el("g", { opacity: 0 }, g);
+      const nodes = [];
+      lines.forEach((ln, li) => {
+        const lineW = ln.reduce((s, tw) => s + tw.width, 0) + space * (ln.length - 1);
+        let cx = o.x - lineW / 2;
+        const y = o.y + li * o.size * o.lineHeight;
+        for (const tw of ln) {
+          const attrs = { x: (cx + tw.width / 2).toFixed(1), y: y.toFixed(1), "font-family": o.font, "font-size": o.size,
+            "font-weight": o.weight, "font-style": o.style, fill: o.fill, stroke: o.stroke,
+            "stroke-width": o.strokeWidth, "paint-order": "stroke", "stroke-linejoin": "round" };
+          const n = el("text", attrs, group);
+          n.textContent = tw.w;
+          nodes.push({ n, at: tw.at, x: cx + tw.width / 2, y });
+          cx += tw.width + space;
+        }
+      });
+      return { cue, group, nodes };
+    });
+    probe.remove();
+
+    return function update(t) {
+      for (const { cue, group, nodes } of built) {
+        const on = t >= cue.start && t < cue.end + 0.25;
+        group.setAttribute("opacity", on ? "1" : "0");
+        if (!on) continue;
+        for (const { n, at, x, y } of nodes) {
+          const k = clamp((t - at) / o.pop);
+          const s = k <= 0 ? 0 : ease.outBack(k, 2.2);
+          n.setAttribute("opacity", k > 0 ? "1" : "0");
+          n.setAttribute("transform", `translate(${x.toFixed(1)},${y.toFixed(1)}) scale(${s.toFixed(3)}) translate(${(-x).toFixed(1)},${(-y).toFixed(1)})`);
+        }
+      }
+    };
+  }
+
   // ------------------------------------------------------------- film
   /**
    * Register a film with HyperFrames. `render(t)` is a pure function of time
@@ -135,6 +206,6 @@
     onTwos, drawingIndex,
     rng, hash, noise,
     squash, hose,
-    el, set, film,
+    el, set, captions, film,
   };
 })(window);

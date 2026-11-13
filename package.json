@@ -1,14 +1,17 @@
 {
   "name": "cartoonforge",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Open-source cartoon renderer: cartoons drawn entirely in code, in many classic styles. Built for coding agents and Instagram Reels.",
   "license": "MIT",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "npx --yes serve . -l 3000",
-    "render": "node scripts/render.mjs",
-    "render:draft": "node scripts/render.mjs --draft"
+    "new": "node skills/cartoonforge/scripts/new-film.mjs",
+    "audio": "node skills/cartoonforge/scripts/audio.mjs",
+    "render": "node skills/cartoonforge/scripts/render.mjs",
+    "showcase": "node scripts/showcase.mjs",
+    "postinstall": "node scripts/sync-examples.mjs"
   },
   "dependencies": {
     "gsap": "^3.15.0"

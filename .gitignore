@@ -1,7 +1,14 @@
 node_modules/
 renders/
 .hyperframes/
+cartoons/
+examples/*/lib/
+examples/*/node_modules/
+examples/*/assets/.lines/
+examples/*/assets/music.wav
+examples/*/assets/voice.wav
 .idea/workspace.xml
 .idea/shelf/
 .DS_Store
 *.log
+__pycache__/

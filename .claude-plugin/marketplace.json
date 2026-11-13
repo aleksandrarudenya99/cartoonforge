@@ -1,0 +1,11 @@
+{
+  "name": "cartoonforge",
+  "owner": { "name": "Aliaksandra Rudzenia" },
+  "plugins": [
+    {
+      "name": "cartoonforge",
+      "source": "./",
+      "description": "Cartoons drawn entirely in code, in classic animation styles, with voice, music and captions."
+    }
+  ]
+}

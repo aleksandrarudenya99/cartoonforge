@@ -35,6 +35,19 @@
     lineWidth: 10,
   };
 
+  // burned-in captions: 1930s intertitle lettering, cream with a heavy ink outline
+  const caption = {
+    y: 380,
+    size: 78,
+    font: "Georgia, 'DejaVu Serif', serif",
+    weight: "bold",
+    style: "italic",
+    fill: palette.white,
+    stroke: palette.ink,
+    strokeWidth: 16,
+    maxWidth: 900,
+  };
+
   function install(svg, { width, height, intensity = 1 }) {
     const { el } = T;
     const defs = el("defs", {}, svg);
@@ -103,5 +116,5 @@
   }
 
   global.Toon.styles = global.Toon.styles || {};
-  global.Toon.styles["rubber-hose-1930"] = { palette, motion, install };
+  global.Toon.styles["rubber-hose-1930"] = { palette, motion, caption, install };
 })(window);

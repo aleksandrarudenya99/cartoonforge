@@ -1,0 +1,15 @@
+{
+  "lang": "en",
+  "voice": "af_heart",
+  "engine": "auto",
+  "start": 1.8,
+  "gap": 0.4,
+  "lines": [
+    "Hi there! I'm Pip.",
+    "Every frame of me is drawn by code.",
+    "Pick a style, write a script, and I'm on!"
+  ],
+  "music": true,
+  "musicVolume": 0.55,
+  "minDuration": 10
+}
