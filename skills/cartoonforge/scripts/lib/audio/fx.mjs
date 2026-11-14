@@ -26,6 +26,8 @@ export const VOICE_FX = {
   vhs: "lowpass=f=6500,vibrato=f=0.8:d=0.015,acompressor=threshold=-20dB:ratio=3",
   // dramatic action hero: low-mid weight, compression, big room
   hero: "highpass=f=80,equalizer=f=180:t=q:w=1:g=3,acompressor=threshold=-24dB:ratio=6,aecho=0.7:0.5:70|140:0.22|0.12,volume=1.3",
+  // TV dub / ADR: dry close mic, presence lift, firm compression, a hint of small room
+  dub: "highpass=f=90,lowpass=f=10500,equalizer=f=2800:t=q:w=1.2:g=3,acompressor=threshold=-24dB:ratio=5:attack=4:release=120,aecho=0.85:0.5:16:0.08,volume=1.5",
   // TV broadcast: clean, light compression
   tv: "highpass=f=100,lowpass=f=9000,acompressor=threshold=-20dB:ratio=3,volume=1.2",
   // 16-bit game: bit-crushed

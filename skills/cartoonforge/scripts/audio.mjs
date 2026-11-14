@@ -13,6 +13,8 @@
  *     "lines": ["Hi!", {"text": "Look up!", "at": 5.2, "emotion": "surprised"}],   // extra fields ride on the caption cue
  *     "genre": "citypop",            // OPTIONAL: music genre (default: the style's)
  *     "data": { "beats": [...] },    // OPTIONAL: merged into window.CF (e.g. scene changes)
+ *     "sfx": [{"name": "vortex", "at": 4.2}, {"name": "rain", "at": 4.5, "dur": 3}],  // OPTIONAL: lib/audio/sfx.mjs
+ *     "sfxVolume": 0.9, "voiceVolume": 1,   // stem balance before mastering (dialogue should sit ~8 dB above the rest)
  *     "recording": "my-voice.m4a",   // OPTIONAL: your own voice instead of TTS (lines then = caption text, optional)
  *     "voiceFx": "style",            // style (from style.json) | any name in lib/audio/fx.mjs VOICE_FX
  *     "music": true,                 // true = generate in the style's genre, false = none, or a path
@@ -35,6 +37,7 @@ import { fileURLToPath } from "node:url";
 import { compose } from "./lib/audio/genres.mjs";
 import { wav } from "./lib/audio/instruments.mjs";
 import { MASTER, MUSIC_NOISE, musicFx, voiceFx } from "./lib/audio/fx.mjs";
+import { renderSfx } from "./lib/audio/sfx.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const dir = resolve(process.argv[2] ?? ".");
@@ -83,9 +86,30 @@ if (engine === "auto") {
 }
 const speed = S.speed ?? meta.voice?.speed ?? 1;
 
-function speak(text, out) {
+/**
+ * Acting in the voice: each emotion nudges delivery (speed ×, pitch in semitones, gain ×).
+ * A line can override any of them: { "text": "…", "emotion": "furious", "speed": 1.2, "pitch": 2, "gain": 1.6 }.
+ */
+const EMO_VOICE = {
+  happy: [1.05, 0.8, 1.1], laugh: [1.12, 1.5, 1.3], excited: [1.15, 2, 1.4], dreamy: [0.86, 0.6, 0.85], smug: [0.9, -0.6, 0.95],
+  bored: [0.82, -1, 0.75], sad: [0.85, -0.8, 0.8], crying: [0.88, 1.2, 0.95], surprised: [1.05, 1.5, 1.15], shocked: [1.08, 2.2, 1.35],
+  scared: [1.2, 2, 1.35], nervous: [1.15, 1, 0.95], embarrassed: [0.92, 0.8, 0.8], confused: [0.92, 0.6, 1], skeptical: [0.9, -0.6, 0.95],
+  disgusted: [0.92, -0.8, 1.05], angry: [1.05, -0.5, 1.4], furious: [1.12, 1, 1.8],
+};
+function delivery(line) {
+  const o = typeof line === "object" ? line : {};
+  const [sp, pt, gn] = EMO_VOICE[o.emotion] || [1, 0, 1];
+  return { speed: speed * (o.speed ?? sp), pitch: o.pitch ?? pt, gain: o.gain ?? gn };
+}
+function speak(text, out, line) {
+  const dl = delivery(line);
   if (engine === "kokoro") {
-    must(sh("python3", [join(HERE, "voice_kokoro.py"), text, "--voice", S.voice || "af_heart", "--lang", KOKORO_LANG[lang], "--speed", String(speed), "--out", out]), "kokoro");
+    const raw = out.replace(/\.wav$/, ".raw.wav");
+    must(sh("python3", [join(HERE, "voice_kokoro.py"), text, "--voice", (typeof line === "object" && line.voice) || S.voice || "af_heart", "--lang", KOKORO_LANG[lang], "--speed", String(dl.speed), "--out", raw]), "kokoro");
+    // pitch shift without changing tempo, then gain; shouts get a touch of grit
+    const r = Math.pow(2, dl.pitch / 12);
+    const grit = dl.gain >= 1.6 ? ",asoftclip=type=tanh" : "";
+    must(sh("ffmpeg", ["-loglevel", "error", "-y", "-i", raw, "-af", `asetrate=${Math.round(24000 * r)},aresample=24000,atempo=${(1 / r).toFixed(4)},volume=${dl.gain}${grit}`, out]), "voice acting");
   } else if (engine === "say") {
     const aiff = out.replace(/\.wav$/, ".aiff");
     must(sh("say", ["-r", String(Math.round(185 * speed)), "-o", aiff, ...(S.voice && S.engine === "say" ? ["-v", S.voice] : []), text]), "say");
@@ -125,7 +149,7 @@ if (S.recording) {
     const text = typeof line === "string" ? line : line.text;
     if (typeof line === "object" && line.at != null) cursor = line.at;
     const f = join(tmp, `line${i}.wav`);
-    const d = speak(text, f);
+    const d = speak(text, f, line);
     // extra per-line fields (emotion, scene, …) travel with the caption cue to the film
     const extra = typeof line === "object" ? Object.fromEntries(Object.entries(line).filter(([k]) => !["text", "at"].includes(k))) : {};
     captions.push({ start: +cursor.toFixed(3), end: +(cursor + d).toFixed(3), text, ...extra });
@@ -236,11 +260,27 @@ if (S.music === true) {
   haveMusic = true;
 }
 
+// ---------------------------------------------------------------- sound effects + ambiences
+const sfxWav = join(assets, "sfx.wav");
+let haveSfx = false;
+if (Array.isArray(S.sfx) && S.sfx.length) {
+  const raw = join(tmp, "sfx.raw.wav");
+  writeFileSync(raw, wav(renderSfx(S.sfx, DUR)));
+  must(sh("ffmpeg", ["-loglevel", "error", "-y", "-i", raw, "-ar", "48000", "-ac", "1", "-t", String(DUR), sfxWav]), "sfx");
+  haveSfx = true;
+  console.log(`✓ sfx: ${S.sfx.length} cue(s)`);
+}
+
 // ---------------------------------------------------------------- mix
 const soundtrack = join(assets, "soundtrack.wav");
 const mv = S.musicVolume ?? 0.55;
+const sv = S.sfxVolume ?? 0.9;
 let filter, inputs;
-if (haveMusic && voiceInputs.length) {
+if (haveSfx && voiceInputs.length) {
+  // dialogue-first mix: music ducks under the voice, effects ride beside it
+  inputs = [...(haveMusic ? ["-i", musicWav] : ["-f", "lavfi", "-i", `anullsrc=r=48000:cl=mono:d=${DUR}`]), "-i", voiceWav, "-i", sfxWav];
+  filter = `[0:a]volume=${haveMusic ? mv : 0}[m];[1:a]volume=${S.voiceVolume ?? 1},asplit=2[v][sc];[m][sc]sidechaincompress=threshold=0.03:ratio=8:attack=20:release=350[md];[2:a]volume=${sv}[fx];[md][v][fx]amix=inputs=3:normalize=0,${MASTER},aresample=48000,apad=whole_dur=${DUR}[out]`;
+} else if (haveMusic && voiceInputs.length) {
   inputs = ["-i", musicWav, "-i", voiceWav];
   filter = `[0:a]volume=${mv}[m];[1:a]asplit=2[v][sc];[m][sc]sidechaincompress=threshold=0.03:ratio=8:attack=20:release=350[md];[md][v]amix=inputs=2:normalize=0,${MASTER},aresample=48000,apad=whole_dur=${DUR}[out]`;
 } else if (haveMusic) {

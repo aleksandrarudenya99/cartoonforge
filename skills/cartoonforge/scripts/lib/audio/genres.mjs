@@ -152,6 +152,8 @@ const CH = {
 };
 
 const RECIPES = {
+  // adult sci-fi comedy underscore: slow detuned minor pads, a soft low pulse, sparse bell sparkles, no drums
+  spaceamb: { prog: CH.minorDark, scale: SCALES.minor, bass: { inst: "tri", beats: [0, 2.5], octave: -24, vel: 0.18 }, chords: { inst: "pad", beats: [0], len: 3.9, vel: 0.055 }, lead: { inst: "bell", density: 0.22, octave: 12, steps: 8, vel: 0.06 }, drums: {} },
   polka: { prog: CH.folk, scale: SCALES.major, bass: { inst: "bass", beats: [0, 2], octave: -24 }, chords: { inst: "reed", beats: [1, 3], len: 0.35, vel: 0.06 }, lead: { inst: "pluck", density: 0.7, octave: 12, steps: 8 }, drums: { kick: [0, 2], snare: [1, 3] } },
   funk: { prog: CH.minorDark, scale: SCALES.dorian, bass: { inst: "upright", beats: [0, 0.75, 1.5, 2, 2.75, 3.5], octave: -24 }, chords: { inst: "saw", beats: [1.5, 3.5], len: 0.15, vel: 0.07 }, lead: { inst: "saw", density: 0.35, octave: 12, steps: 8, vel: 0.08 }, drums: { kick: [0, 1.75, 2.5], snare: [1, 3], hat: "16" } },
   citypop: { prog: CH.citypop, scale: SCALES.major, bass: { inst: "upright", beats: [0, 1.5, 2, 3.5], octave: -24 }, chords: { inst: "epiano", beats: [0, 1.5, 2.5], len: 0.9, vel: 0.07 }, lead: { inst: "square", density: 0.45, octave: 12, steps: 8, vel: 0.05, duty: 0.25 }, drums: { kick: [0, 2], snare: [1, 3], hat: "8" } },
