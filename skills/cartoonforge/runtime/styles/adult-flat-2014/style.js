@@ -48,9 +48,24 @@
   T.styles = T.styles || {};
   T.styles[SLUG] = style;
 
-  // load the parts (classic scripts, in order, synchronously during parsing)
-  const base = document.currentScript.src.replace(/style\.js(\?.*)?$/, "");
-  for (const part of ["background", "details", "character", "foreground", "motion"]) {
-    document.write(`<script src="${base}${part}.js"><\/script>`);
+  // SETS: one style, several places. Each set is a folder with background / details / foreground.
+  // The film picks one with CF.scene (default: street). The parts below dispatch to the chosen set.
+  const SETS = ["street", "alley", "desert", "dusk", "home", "garage", "station"];
+  style.defaultScene = "street";
+  style.sets = {};
+  style.set = (name) => (style.sets[name] = style.sets[name] || {});
+  for (const part of ["background", "details", "foreground"]) {
+    style.parts[part] = {
+      build(ctx) {
+        const set = style.sets[ctx.scene] || style.sets[style.defaultScene];
+        return set[part] ? set[part].build(ctx) : null;
+      },
+    };
   }
+
+  // load the files (classic scripts, in order, synchronously during parsing)
+  const base = document.currentScript.src.replace(/style\.js(\?.*)?$/, "");
+  const files = ["props", "character", "motion"];
+  for (const s of SETS) for (const part of ["background", "details", "foreground"]) files.push(`sets/${s}/${part}`);
+  for (const file of files) document.write(`<script src="${base}${file}.js"><\/script>`);
 })(window);

@@ -7,7 +7,7 @@
   "use strict";
   const T = global.Toon;
 
-  T.styles["adult-flat-2014"].parts.foreground = {
+  T.styles["adult-flat-2014"].set("street").foreground = {
     build({ g, theme, width: W, ground: G }) {
       const P = theme.palette, L = theme.line;
       const line = { stroke: L.color, "stroke-width": L.width, "stroke-linejoin": "round", "stroke-linecap": "round" };

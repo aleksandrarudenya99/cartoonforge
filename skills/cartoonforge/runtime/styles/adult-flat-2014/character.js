@@ -32,7 +32,8 @@
       folds: true,                               // a couple of crease lines on clothes
       limbs: { type: "tube" },
       hair: { scale: 1 },
-      shading: { type: "none" },                 // flat fills on characters
+      shadow: { rx: 120, ry: 17, opacity: 0.15 },
+    shading: { type: "none" },                 // flat fills on characters
     },
   };
 })(window);

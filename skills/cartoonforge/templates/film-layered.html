@@ -49,7 +49,7 @@
       const BEAT = 60 / style.motion.bpm;
 
       const svg = document.getElementById("stage");
-      const stage = T.stage(svg, style, { width: W, height: H, ground: GROUND });
+      const stage = T.stage(svg, style, { width: W, height: H, ground: GROUND, scene: CF.scene });
       const specs = window.CAST || [T.characters.test.nova];
       const cast = specs.map((spec) => stage.cast(spec));
       const hero = cast[0];

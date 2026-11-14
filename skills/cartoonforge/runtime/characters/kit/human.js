@@ -51,6 +51,7 @@
     const el = T.el;
     const stroke = LW ? { stroke: LC, "stroke-width": LW, "stroke-linejoin": "round", "stroke-linecap": "round" } : {};
     const root = el("g", { "data-character": spec.name || "character" }, parent);
+    if (R.shadow) el("ellipse", { cx: 0, cy: R.shadow.dy ?? 16, rx: R.shadow.rx ?? 110, ry: R.shadow.ry ?? 16, fill: R.shadow.color ?? "#000", opacity: R.shadow.opacity ?? 0.16 }, root); // contact shadow
 
     // ---- skeleton (rest pose)
     const hipY = -P.legLen, shY = hipY - P.torsoH, neckTop = shY - P.neckLen;

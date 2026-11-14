@@ -1,32 +1,35 @@
-# Adult Flat Comedy · 2010s
+# Adult Flat Comedy · 2010s (layered pilot)
 
-Flat, thin-lined, muted everyday sitcom sets with acid sci-fi rifts.
+Genre look of adult animated sitcoms: flat colour, a thin even black line, deadpan acting,
+mundane suburbia colliding with acid sci-fi. Genre traits only — no specific show's characters,
+devices or locations.
 
-**Lineage:** Genre look of 2010s adult animated comedy (not any specific series).
-
-## Files (layered pilot style)
 | File | Part |
 |---|---|
-| `style.js` | theme: palette, line, captions, cards, fx; loads the parts |
-| `background.js` | banded alien night sky, ringed planet, second moon, far hills |
-| `details.js` | suburban street: houses, antenna, power lines, lamp cone, mailbox, bin, hydrant, the crackling tear + debris |
-| `character.js` | how any character is drawn: wide head, thin neck and tube limbs, big touching eyes with dot pupils, bump nose, wide mouth, 4-finger hands, flat fills |
-| `foreground.js` | curb, sidewalk crack, grass tufts, crushed can |
-| `motion.js` | deadpan timing, 4-shape jaw-flap talking at 8 changes/s, bored double blinks, slumped walk, cuts + tear transition |
+| `style.js` | theme, captions, cards, fx; loads everything and dispatches to the chosen **set** |
+| `props.js` | the drawing vocabulary of the backgrounds (airbrush shade, cloud bands, contours, tufts, candy trees, pools, spires, crystals, pictures, curtains, lamps, pipes, hazard doors, glyphs, cracks, bricks…) |
+| `character.js` | HOW characters are drawn (proportions, eyes, mouth, hands, line, contact shadow) |
+| `motion.js` | timing, talking, blinking, walk, transitions |
+| `sets/<name>/background.js` | sky / far scenery / architecture |
+| `sets/<name>/details.js` | mid-ground props behind the characters |
+| `sets/<name>/foreground.js` | things in front of the characters, usually cut by the frame |
 
-## What defines the look
-- Thin even outlines, flat muted fills
-- Plain sitcom sets: suburban house, road
-- Acid sci-fi accents: glowing green rift with swirl
-- Deadpan limited acting
+## Sets (pick one with `CF.scene`)
 
-## Sound
-- Music: generated `lofi` at 110 bpm, treated with `broadcast` (see `scripts/lib/audio/`)
-- Voice: `tv` treatment, speed 1.0
+| Set | Place |
+|---|---|
+| `street` | suburban street at night under an alien sky, dimensional tear (default) |
+| `alley` | grimy back alley framing a view onto a city street, cracks, trash, the tear |
+| `home` | family room: cream walls, plank floor, arched doorway, curtained window, pictures |
+| `garage` | cluttered garage: washer/dryer, utility sink, shelving with junk, open kitchen door |
+| `desert` | yellow-green sky, lavender hills, candy trees, pink ring pools |
+| `dusk` | orange sky, streaky giant planet, ringed planet with spore trail, spires, crystals |
+| `station` | pale sci-fi corridor: pipe ribs, hazard doors, alien-glyph ad, glass tube |
 
-## Do / don't
-- Do draw the user's own characters with this style's `skin` (outline, fills, shading mode).
-- Don't: No horse-men, scientists with lab coats, portal guns or catchphrases from existing series
-
-## Legal
-Styles, eras and techniques are free to use. Never reproduce characters, logos, titles, signature props or settings of an existing work, even if the user asks for "100% like X" — offer this genre look instead.
+## Background rules (from the reference study)
+- Same thin black line as the characters; many lines left **open** (ground contours, folds).
+- Flat fills; depth comes from **airbrush shading** that breaks into speckle as it fades
+  (ceilings, corners, hill bases, pool rims, stains on walls).
+- Skies: smooth gradient + long flat cloud bands in a darker tone of the sky.
+- Lots of small everyday clutter that carries jokes; big props cut by the frame edges.
+- Characters cast a soft flat contact shadow.

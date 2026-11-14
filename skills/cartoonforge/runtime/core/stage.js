@@ -18,7 +18,8 @@
  *   overlay → captions, cards, transitions
  *   fxTop  → grain, vignette…   (fixed to the frame)
  *
- * ctx passed to every part: { T, g (its layer), look, theme, width, height, ground, defs, layers }
+ * ctx passed to every part: { T, g (its layer), look, theme, width, height, ground, defs, layers, scene }
+ * `scene` picks one of the style's sets (e.g. street, desert, garage) when the style has several.
  * `layers` lets a part draw into a neighbour layer when needed (e.g. a rift glow behind characters).
  *
  * Legacy single-file styles (install + scenery) still work: stage wraps them.
@@ -27,7 +28,7 @@
   "use strict";
   const T = global.Toon;
 
-  function stage(svg, style, { width, height, ground }) {
+  function stage(svg, style, { width, height, ground, scene }) {
     // legacy style: one install() + one scenery()
     if (!style.parts) {
       const look = style.install(svg, { width, height });
@@ -48,13 +49,13 @@
       front: T.el("g", { "data-layer": "foreground" }, g),
       overlay: look.overlay,
     };
-    const ctx = (layer) => ({ T, g: layers[layer], look, theme, width, height, ground, defs: look.defs, layers });
+    const ctx = (layer) => ({ T, g: layers[layer], look, theme, width, height, ground, defs: look.defs, layers, scene: scene || style.defaultScene });
     const built = [
       ["background", "back"], ["details", "mid"], ["foreground", "front"],
     ].map(([part, layer]) => (style.parts[part] ? style.parts[part].build(ctx(layer)) : null)).filter(Boolean);
 
     return {
-      look, layers, theme,
+      look, layers, theme, scene: scene || style.defaultScene,
       /** draw one character from a spec with this style's character rules */
       cast(spec, opts = {}) {
         const kit = T.characters.kit;
