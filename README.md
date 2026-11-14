@@ -10,13 +10,35 @@ Bring your characters and an idea · pick one of 34 styles · get a 9:16 reel wi
 
 </div>
 
+## Demo · One Frame, Seven Worlds
+
+<table>
+<tr>
+<td width="260" align="center"><a href="docs/media/adult-flat-2014.mp4"><img src="docs/media/adult-flat-2014.gif" width="240" alt="One Frame, Seven Worlds — Adult Flat Comedy style"></a><br><sub><a href="docs/media/adult-flat-2014.mp4">▶ watch with sound (MP4)</a></sub></td>
+<td>
+
+**Adult Flat Comedy** style, 24 s, made 100% in code: picture, voice, music and sound effects.
+
+- One character stays in frame while the world swaps through a swirling portal on the beat:
+  Paris → London → New York → Tokyo → Giza → Rio → Venice
+- **14 emotions** on face, body *and* voice: happy, dreamy, bored, crying, surprised, scared, shocked,
+  excited, disgusted, furious, embarrassed, laughing, confused, smug
+- Voice: free Kokoro TTS + intonation acting (pitch contours, voice cracks, stammer, hysterical swings)
+- Sound: TV-dub dialogue mix, synthesized effects per place, ambient sci-fi score — no samples
+
+Make your own: `node skills/cartoonforge/scripts/new-film.mjs my-film --style adult-flat-2014 --template worlds`
+
+</td>
+</tr>
+</table>
+
 ## Styles
 
 <!-- gallery:start -->
 <table>
 <tr>
+<td align="center" width="33%"><a href="https://aleksandrarudenya99.github.io/cartoonforge/#adult-flat-2014"><img src="docs/media/adult-flat-2014.gif" width="200" alt="Adult Flat Comedy"></a><br><b>Adult Flat Comedy</b> · 2010s<br><sub>Flat, thin-lined, muted everyday sitcom sets with acid sci-fi rifts.</sub></td>
 <td align="center" width="33%"><a href="https://aleksandrarudenya99.github.io/cartoonforge/#rubber-hose-1930"><img src="docs/media/rubber-hose-1930.gif" width="200" alt="Rubber Hose"></a><br><b>Rubber Hose</b> · 1920s–1930s<br><sub>Bendy limbs, pie-cut eyes, black ink on old film. Everything bounces to the music.</sub></td>
-<td align="center" width="33%"><img src="docs/media/stills/adult-flat-2014.jpg" width="200" alt="Adult Flat Comedy"><br><b>Adult Flat Comedy</b> · 2010s<br><sub>Flat, thin-lined, muted everyday sitcom sets with acid sci-fi rifts.</sub><br><sub><i>still · video coming soon</i></sub></td>
 <td align="center" width="33%"><img src="docs/media/stills/brick-toy-2014.jpg" width="200" alt="Brick Toy Animation"><br><b>Brick Toy Animation</b> · 2010s<br><sub>A world built from generic plastic bricks: studs, gloss, stepped clouds.</sub><br><sub><i>still · video coming soon</i></sub></td>
 </tr>
 <tr>
