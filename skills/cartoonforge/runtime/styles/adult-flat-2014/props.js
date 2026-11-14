@@ -431,3 +431,59 @@
     T.el("ellipse", { cx: -22, cy: 0, rx: 5, ry: 10, fill: "#a7adb5", ...X.ink(theme, 0.4) }, c);
   };
 })(window);
+
+/* ---- added: swirling portal (genre sci-fi vortex; colour set by palette, default violet) ---- */
+(function (global) {
+  "use strict";
+  const T = global.Toon, X = T.styles["adult-flat-2014"].props;
+  const f = (v) => (+v).toFixed(2);
+  X.PORTAL = {
+    violet: { glow: "#d98cff", rim: "#efc2ff", body: "#b357ee", dark: "#6a20a8", light: "#f6d9ff", spark: "#ffffff" },
+    amber: { glow: "#ffb44a", rim: "#ffe0a0", body: "#ff9a2e", dark: "#c2500f", light: "#fff0c4", spark: "#ffffff" },
+    cyan: { glow: "#6ff0ff", rim: "#c8fbff", body: "#2fc8e8", dark: "#0f6f9a", light: "#e0feff", spark: "#ffffff" },
+  };
+  /**
+   * Oval vortex: airbrushed glow, a soft liquid rim that boils on twos, spiral arms turning
+   * inside, sparkles sucked toward the centre. No black outline — light, not an object.
+   */
+  X.portal = (g, defs, theme, { cx, cy, rx, ry, colors = "violet", seed = 1, open = 1 }) => {
+    const C = typeof colors === "string" ? X.PORTAL[colors] : colors;
+    const root = T.el("g", {}, g);
+    X.shade(root, defs, X.ellD(cx, cy, rx * 1.45, ry * 1.25), C.glow, [[50, 0.95], [70, 0.5], [100, 0]], { radial: true });
+    const rim = T.el("path", { fill: C.rim }, root);
+    const body = T.el("path", { fill: C.body }, root);
+    const cid = `af-portal-${seed}`;
+    T.el("ellipse", { cx, cy, rx: rx * 0.86, ry: ry * 0.88 }, T.el("clipPath", { id: cid }, defs));
+    const clip = T.el("g", { "clip-path": `url(#${cid})` }, root);
+    const spin = T.el("g", {}, clip);
+    const arm = (a0, turns, w, color, op) => {
+      const pts = [];
+      for (let i = 0; i <= 24; i++) { const r = 1.05 - i * 0.042, a = a0 + (i / 24) * turns * Math.PI * 2; pts.push([Math.cos(a) * r, Math.sin(a) * r]); }
+      T.el("path", { d: X.wob(pts, { j: 0 }), fill: "none", stroke: color, "stroke-width": w, "stroke-linecap": "round", opacity: op }, spin);
+    };
+    // uneven arms read as liquid, even ones as a fingerprint
+    arm(0, 1.3, 0.34, C.dark, 0.9); arm(2.3, 1.15, 0.22, C.dark, 0.75); arm(4.2, 1.4, 0.16, C.dark, 0.6);
+    arm(0.9, 1.2, 0.07, C.light, 0.85); arm(3.6, 0.9, 0.05, C.light, 0.7);
+    T.el("ellipse", { cx: 0, cy: 0, rx: 0.16, ry: 0.16, fill: C.dark }, spin);
+    const r = T.rng(seed), sparks = Array.from({ length: 34 }, () => ({ n: T.el("ellipse", { fill: C.spark, opacity: f(0.6 + r() * 0.4) }, clip), a: r() * Math.PI * 2, r0: r(), sz: 2 + r() * 5 }));
+    const rimD = (k, sc) => X.blob(cx, cy, rx * sc, ry * sc, { seed: seed * 10 + k, n: 18, irr: 0.05 });
+    return {
+      root,
+      update(t) {
+        const k = Math.floor(t * 12) % 4; // boil on twos
+        const o = Math.max(0.001, open);
+        rim.setAttribute("d", rimD(k, o));
+        body.setAttribute("d", rimD(k + 4, 0.9 * o));
+        spin.setAttribute("transform", `translate(${cx},${cy}) scale(${f(rx * 0.86 * o)},${f(ry * 0.88 * o)}) rotate(${f(-t * 110)})`);
+        for (const s of sparks) {
+          const life = (s.r0 + t * 0.35) % 1, rr = 1 - life, a = s.a + life * 5;
+          s.n.setAttribute("cx", f(cx + Math.cos(a) * rr * rx * 0.85 * o));
+          s.n.setAttribute("cy", f(cy + Math.sin(a) * rr * ry * 0.85 * o));
+          s.n.setAttribute("rx", f(s.sz * (0.4 + rr)));
+          s.n.setAttribute("ry", f(s.sz * 0.6 * (0.4 + rr)));
+        }
+      },
+      set open(v) { open = v; },
+    };
+  };
+})(window);

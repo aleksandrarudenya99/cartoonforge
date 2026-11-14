@@ -2,7 +2,7 @@
  * Set ALLEY — DETAILS: two grimy plaster walls framing the view. Airbrushed stains, cracks with
  * bricks showing through, an electrical box with a conduit pipe, a fire-escape ladder, a wall
  * lamp, a back door with a riveted kick plate, a torn flyer; cracked asphalt with debris,
- * a crushed can and an open cardboard box. Our own sci-fi intrusion: the dimensional tear.
+ * a crushed can and an open cardboard box. The sci-fi intrusion: a swirling portal.
  */
 (function (global) {
   "use strict";
@@ -61,11 +61,9 @@
       X.can(g, theme, { x: 300, y: G + 10, s: 1.1 });
       X.can(g, theme, { x: 900, y: G + 230, s: 1.3 });
 
-      // our own sci-fi intrusion: the crackling tear (shared with the street set)
-      const tx = 120, ty = 1010, r = T.rng(9);
-      const rip = (sc, sd, k) => { const rr = T.rng(sd + k), pts = []; for (let i = 0; i < 14; i++) { const a = (i / 14) * Math.PI * 2, q = (i % 2 ? 0.55 : 1) * (0.8 + rr() * 0.4); pts.push(`${(tx + Math.cos(a) * 62 * sc * q).toFixed(1)},${(ty + Math.sin(a) * 130 * sc * q).toFixed(1)}`); } return "M" + pts.join(" L") + " Z"; };
-      const o = T.el("path", { fill: "#38f2d0", ...X.ink(theme, 0.6) }, g), m = T.el("path", { fill: "#f04fd8" }, g), c = T.el("path", { fill: "#fdfcff" }, g);
-      return { update(t) { const k = Math.floor(t * 12) % 4, p = 1 + Math.sin(t * 5) * 0.04; o.setAttribute("d", rip(1.0 * p, 11, k)); m.setAttribute("d", rip(0.72 * p, 12, k)); c.setAttribute("d", rip(0.4, 13, k)); } };
+      // the sci-fi intrusion: a swirling portal on the wall (genre vortex, violet by default)
+      const portal = X.portal(g, defs, theme, { cx: 150, cy: 1000, rx: 105, ry: 200, colors: "violet", seed: 3 });
+      return { update(t) { portal.update(t); } };
     },
   };
 })(window);
