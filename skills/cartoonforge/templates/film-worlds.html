@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>{{TITLE}}</title>
+    <script src="node_modules/gsap/dist/gsap.min.js"></script>
+    <!-- shared core -->
+    <script src="lib/core/toon.js"></script>
+    <script src="lib/core/fx.js"></script>
+    <script src="lib/core/shapes.js"></script>
+    <script src="lib/core/scenes.js"></script>
+    <script src="lib/core/stage.js"></script>
+    <script src="lib/core/acting.js"></script>
+    <script src="lib/characters/kit/human.js"></script>
+    <script src="lib/characters/test/nova.js"></script>
+    <!-- the style (loads its own parts: background, details, character, foreground, motion) -->
+    <script src="lib/styles/{{STYLE}}/style.js"></script>
+    <!-- the user's characters (optional) + caption cues / duration from audio.mjs -->
+    <script src="cast.js" onerror="window.CAST = null"></script>
+    <script src="cf-data.js"></script>
+    <style>
+      html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #000; }
+      #root { width: 100%; height: 100%; }
+      svg { display: block; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="10" data-fps="24" data-width="1080" data-height="1920">
+      <!-- cf:audio -->
+      <svg id="stage" class="clip" data-start="0" data-duration="10" data-track-index="0"
+           xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920"></svg>
+    </div>
+
+    <script>
+      /*
+       * "One frame — many worlds" (preview format).
+       *   The character stays in the same spot; the world behind changes on the beat through a
+       *   swirling vortex. Every caption line may carry an "emotion" (see kit EMOTIONS) — the face
+       *   and body blend into it while the line is spoken (style lip-sync on top).
+       * CF (from audio.mjs → script.json "data"):
+       *   scenes: ["paris", "london", …]          sets of the style to build
+       *   beats:  [{ at: 1.5, scene: "paris" }, …] when each world appears (vortex on every change)
+       *   vortex: { dark, body, rim, glow, light } colours of the swirl (optional)
+       */
+      const W = 1080, H = 1920, GROUND = 1480;
+      const T = Toon;
+      const style = T.styles["{{STYLE}}"];
+      const CF = window.CF || { duration: 10, captions: [] };
+      const DUR = CF.duration;
+      const BEAT = 60 / (CF.bpm || style.motion.bpm);
+      const beats = CF.beats || [{ at: 0, scene: CF.scene || style.defaultScene }];
+      const scenes = CF.scenes || [...new Set(beats.map((b) => b.scene))];
+
+      const svg = document.getElementById("stage");
+      const stage = T.stage(svg, style, { width: W, height: H, ground: GROUND, scene: scenes });
+      const specs = window.CAST || [T.characters.test.nova];
+      const cast = specs.map((spec) => stage.cast(spec));
+      const hero = cast[0];
+      const M = style.parts.motion;
+      const kit = T.characters.kit;
+      const act = T.acting(M.rules, { captions: CF.captions, seed: 3 });
+      const updateCaptions = T.captions(stage.layers.overlay, CF.captions, style.caption || {});
+      const swaps = beats.slice(1).map((b) => T.scenes.transition(stage.layers.overlay, { width: W, height: H, at: b.at, dur: 0.6, type: "vortex", vortex: CF.vortex }));
+      const ends = T.scenes.bookends(stage.layers.overlay, { width: W, height: H, duration: DUR, theme: { ...style.cards, transition: "fade" }, title: "{{TITLE}}", subtitle: "{{SUBTITLE}}", titleEnd: Math.max(0.6, (beats[0].at || 0) - 0.1) });
+      window.__cf = { stage, cast, act, style }; // for review tools
+
+      const beatAt = (t) => { let i = 0; for (let k = 0; k < beats.length; k++) if (t >= beats[k].at) i = k; return i; };
+      // emotion at time t: the last cue that started (held until the next one), blended over 0.15 s
+      const cues = CF.captions.filter((c) => c.emotion);
+      function emotionAt(t) {
+        let cur = null, prev = null;
+        for (const c of cues) if (t >= c.start - 0.08) { prev = cur; cur = c; }
+        const b = beats[beatAt(t)];
+        if (cur && b.at > cur.start + 0.05) { prev = null; cur = { emotion: b.emotion || "neutral", start: b.at }; } // a new world resets the face
+        if (!cur) return b.emotion || "neutral";
+        const k = T.clamp((t - (cur.start - 0.08)) / 0.15);
+        return kit.blendEmotion(prev ? prev.emotion : "neutral", cur.emotion, (T.ease && T.ease.outQuad) ? T.ease.outQuad(k) : k);
+      }
+
+      function render(tRaw) {
+        const t = T.onTwos(tRaw, M.rules.timing.dps);
+        // swap worlds at the vortex's fullest point
+        const i = beatAt(t);
+        stage.showScene(beats[i].scene);
+        stage.update(tRaw, BEAT);
+        const a = act.at(tRaw, { walking: false, phase: 0 });
+        const emo = emotionAt(t);
+        // a tiny hop on every world change
+        const since = t - beats[i].at, hop = i > 0 && since < 0.3 ? Math.sin((since / 0.3) * Math.PI) * 26 : 0;
+        hero.pose({ ...a, emotion: emo, x: W / 2, y: GROUND + (a.y || 0) - hop, squash: (a.squash || 0) + (since < 0.12 && i > 0 ? 0.06 : 0), scale: 1, t: tRaw });
+        updateCaptions(t);
+        swaps.forEach((s) => s.update(tRaw));
+        ends.update(t, { x: W / 2, y: GROUND - 640 });
+      }
+      T.film({ id: "main", duration: DUR, render });
+    </script>
+  </body>
+</html>

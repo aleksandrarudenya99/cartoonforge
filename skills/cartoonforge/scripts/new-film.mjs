@@ -57,7 +57,8 @@ cpSync(join(RUNTIME, "styles", style), join(outDir, "lib", "styles", style), { r
 
 const meta = JSON.parse(readFileSync(join(RUNTIME, "styles", style, "style.json"), "utf8"));
 const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
-const html = readFileSync(join(SKILL, "templates", meta.layered ? "film-layered.html" : "film.html"), "utf8")
+const tpl = opt("template", null); // e.g. --template worlds → templates/film-worlds.html (layered styles)
+const html = readFileSync(join(SKILL, "templates", meta.layered ? (tpl ? `film-${tpl}.html` : "film-layered.html") : "film.html"), "utf8")
   .replaceAll("{{STYLE}}", style)
   .replaceAll("{{TITLE}}", esc(title))
   .replaceAll("{{SUBTITLE}}", esc(meta.subtitle ?? meta.name));

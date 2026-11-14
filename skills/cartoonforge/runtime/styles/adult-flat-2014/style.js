@@ -50,7 +50,7 @@
 
   // SETS: one style, several places. Each set is a folder with background / details / foreground.
   // The film picks one with CF.scene (default: street). The parts below dispatch to the chosen set.
-  const SETS = ["street", "alley", "desert", "dusk", "home", "garage", "station"];
+  const SETS = ["street", "alley", "desert", "dusk", "home", "garage", "station", "paris", "london", "newyork", "tokyo", "giza", "rio", "venice"];
   style.defaultScene = "street";
   style.sets = {};
   style.set = (name) => (style.sets[name] = style.sets[name] || {});

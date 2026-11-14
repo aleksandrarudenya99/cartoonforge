@@ -19,7 +19,8 @@
  *   fxTop  → grain, vignette…   (fixed to the frame)
  *
  * ctx passed to every part: { T, g (its layer), look, theme, width, height, ground, defs, layers, scene }
- * `scene` picks one of the style's sets (e.g. street, desert, garage) when the style has several.
+ * `scene` picks one of the style's sets (e.g. street, desert, garage) when the style has several;
+ * pass an array to build several and switch with stage.showScene(name).
  * `layers` lets a part draw into a neighbour layer when needed (e.g. a rift glow behind characters).
  *
  * Legacy single-file styles (install + scenery) still work: stage wraps them.
@@ -49,13 +50,33 @@
       front: T.el("g", { "data-layer": "foreground" }, g),
       overlay: look.overlay,
     };
-    const ctx = (layer) => ({ T, g: layers[layer], look, theme, width, height, ground, defs: look.defs, layers, scene: scene || style.defaultScene });
-    const built = [
-      ["background", "back"], ["details", "mid"], ["foreground", "front"],
-    ].map(([part, layer]) => (style.parts[part] ? style.parts[part].build(ctx(layer)) : null)).filter(Boolean);
+    const ctx = (layer, name) => ({ T, g: layers[layer], look, theme, width, height, ground, defs: look.defs, layers, scene: name });
+    // one or several sets: each set gets its own sub-group per layer, only one is shown at a time
+    const names = Array.isArray(scene) ? scene : [scene || style.defaultScene];
+    const sets = names.map((name) => {
+      const groups = [], built = [];
+      for (const [part, layer] of [["background", "back"], ["details", "mid"], ["foreground", "front"]]) {
+        const sub = T.el("g", { "data-scene": name }, layers[layer]);
+        groups.push(sub);
+        const b = style.parts[part] ? style.parts[part].build({ ...ctx(layer, name), g: sub }) : null;
+        if (b) built.push(b);
+      }
+      return { name, groups, built };
+    });
+    let current = 0;
+    const showScene = (which) => {
+      const i = typeof which === "number" ? which : Math.max(0, names.indexOf(which));
+      if (i === current && sets[i].shown) return;
+      sets.forEach((s, k) => { s.shown = k === i; for (const g of s.groups) g.setAttribute("display", k === i ? "inline" : "none"); });
+      current = i;
+    };
+    showScene(0);
 
     return {
-      look, layers, theme, scene: scene || style.defaultScene,
+      look, layers, theme, scenes: names,
+      get scene() { return names[current]; },
+      /** switch the visible set (name or index) — for films that travel between places */
+      showScene,
       /** draw one character from a spec with this style's character rules */
       cast(spec, opts = {}) {
         const kit = T.characters.kit;
@@ -67,7 +88,7 @@
       },
       update(t, beat) {
         look.update(t);
-        for (const b of built) b.update && b.update(t, beat);
+        for (const b of sets[current].built) b.update && b.update(t, beat);
       },
     };
   }

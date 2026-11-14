@@ -162,8 +162,10 @@
     const mouth = el("path", { fill: "#5a1f2a", stroke: LC, "stroke-width": Math.max(2.5, LW * 0.8), "stroke-linejoin": "round", "stroke-linecap": "round" }, face);
     if (spec.glasses) drawGlasses(face, R, spec);
     if (spec.freckles) for (const s of [-1, 1]) for (let k = 0; k < 3; k++) el("circle", { cx: s * (R.eyes.gap + k * 9), cy: P.headR * 0.18 + (k % 2) * 7, r: 2.4, fill: "#b9734f", opacity: 0.8 }, face);
+    const extras = drawExtras(face, R);
 
     function pose(p = {}) {
+      if (p.emotion) p = withEmotion(p);
       const sc = (p.scale ?? 1) * (P.scale || 1);
       const { sx, sy } = T.squash(p.squash ?? 0);
       root.setAttribute("transform", `translate(${f(p.x ?? 0)},${f(p.y ?? 0)}) rotate(${f(p.lean ?? 0)}) scale(${(sc * sx).toFixed(4)},${(sc * sy).toFixed(4)})`);
@@ -201,9 +203,10 @@
       const tilt = p.headTilt ?? (p.lean ?? 0) * -0.4;
       head.setAttribute("transform", `translate(0,${f(headCY + (p.headBob ?? 0))}) rotate(${f(tilt)})`);
       const look = (p.look ?? 0), blink = T.clamp(p.blink ?? 0), m = T.clamp(p.mouth ?? 0);
-      eyes.update(look, blink, p.lidRest);
-      brows.update(p.browUp ?? 0, look);
-      drawMouth(mouth, R, m);
+      eyes.update(look, blink, p.lidRest, p);
+      brows.update(p.browUp ?? 0, look, p);
+      drawMouth(mouth, R, m, p);
+      extras.update(p);
       if (scarfTail) {
         const sw = Math.sin((p.t ?? 0) * 5) * 10 + (p.lean ?? 0) * 2;
         scarfTail.setAttribute("d", `M${P.neckW * 0.4},${shY + 16} Q${P.neckW + sw},${shY + 80} ${P.neckW * 0.9 + sw * 1.6},${shY + 150} L${P.neckW * 0.2 + sw * 1.6},${shY + 140} Q${P.neckW * 0.2 + sw},${shY + 80} ${-P.neckW * 0.1},${shY + 22} Z`);
@@ -299,26 +302,42 @@
       const clipId = `eyeclip-${Math.random().toString(36).slice(2, 8)}`;
       const cp = el("clipPath", { id: clipId }, g);
       el("circle", { cx, cy: y, r: size + 1 }, cp);
-      const lid = el("rect", { x: cx - size - 2, y: y - size - 2, width: size * 2 + 4, height: 0, fill: spec.skin, "clip-path": `url(#${clipId})` }, g);
-      const lidLine = el("path", { fill: "none", stroke: R.line.color, "stroke-width": Math.max(2, (E.lineWidth || R.line.width) * 0.9), "stroke-linecap": "round" }, g);
+      const lid = el("path", { fill: spec.skin, "clip-path": `url(#${clipId})` }, g);
+      const lidLine = el("path", { fill: "none", stroke: R.line.color, "stroke-width": Math.max(2, (E.lineWidth || R.line.width) * 0.9), "stroke-linecap": "round", "clip-path": `url(#${clipId})` }, g);
+      const low = el("path", { fill: spec.skin, "clip-path": `url(#${clipId})` }, g); // lower lid: squint / happy eyes
+      const lowLine = el("path", { fill: "none", stroke: R.line.color, "stroke-width": Math.max(2, (E.lineWidth || R.line.width) * 0.9), "stroke-linecap": "round", "clip-path": `url(#${clipId})` }, g);
       if (E.bags) el("path", { d: `M${cx - size * 0.7},${y + size * 1.12} Q${cx},${y + size * 1.32} ${cx + size * 0.55},${y + size * 1.1}`, fill: "none", stroke: R.line.color, "stroke-width": Math.max(1.5, R.line.width * 0.55), "stroke-linecap": "round" }, g);
-      return { g, pupil, lid, lidLine, cx, s, size };
+      return { g, pupil, lid, lidLine, low, lowLine, cx, s, size };
     });
     return {
-      update(look, blink, lidRest = E.lidRest || 0) {
-        for (const { pupil, lid, lidLine, cx, s, size } of sides) {
+      /** x: { squint 0..1 (lower lid up), pupil (scale), lidAngle (-1 sad … +1 angry), lookY } */
+      update(look, blink, lidRest = E.lidRest || 0, x = {}) {
+        for (const sd of sides) {
+          const { pupil, lid, lidLine, low, lowLine, cx, s, size } = sd;
           const diverge = (E.diverge || 0) * s * size; // pupils drifting apart = the dazed look
-          const px = cx + look * size * 0.45 + diverge, py = y + (E.type === "bigRound" ? size * 0.05 : 0);
-          if (pupil.tagName === "circle" || pupil.tagName === "ellipse") { pupil.setAttribute("cx", f(px)); pupil.setAttribute("cy", f(py)); }
-          else pupil.setAttribute("transform", `translate(${f(px)},${f(py)})`);
-          const close = Math.max(blink, lidRest);
-          const h = close * (size * 2 + 4);
-          lid.setAttribute("height", f(h));
-          if (close > 0.02) {
-            const ly = y - size + h - 2;
-            const half = Math.sqrt(Math.max(0, size * size - (ly - y) * (ly - y)));
-            lidLine.setAttribute("d", `M${f(cx - half - 2)},${f(ly + 2)} Q${f(cx)},${f(ly + (blink > 0.9 ? 6 : -4))} ${f(cx + half + 2)},${f(ly + 2)}`);
-          } else lidLine.setAttribute("d", "");
+          const px = cx + look * size * 0.45 + diverge, py = y + (E.type === "bigRound" ? size * 0.05 : 0) + (x.lookY || 0) * size * 0.35;
+          const ps = x.pupil ?? 1;
+          if (pupil.tagName === "circle" || pupil.tagName === "ellipse") {
+            if (sd.r0 == null) sd.r0 = [+pupil.getAttribute("r") || 0, +pupil.getAttribute("rx") || 0, +pupil.getAttribute("ry") || 0];
+            pupil.setAttribute("cx", f(px)); pupil.setAttribute("cy", f(py));
+            if (sd.r0[0]) pupil.setAttribute("r", f(sd.r0[0] * ps)); else { pupil.setAttribute("rx", f(sd.r0[1] * ps)); pupil.setAttribute("ry", f(sd.r0[2] * ps)); }
+          } else pupil.setAttribute("transform", `translate(${f(px)},${f(py)}) scale(${ps.toFixed(3)})`);
+          // upper lid: a skin cap whose edge can tilt (angry: inner end down, sad: inner end up)
+          const close = Math.max(blink, lidRest), ang = x.lidAngle || 0;
+          const ly = y - size + close * (size * 2 + 4) - 2, tilt = ang * size * 0.5;
+          const xIn = cx - s * (size + 3), xOut = cx + s * (size + 3), yIn = ly + tilt, yOut = ly - tilt;
+          if (close > 0.02 || Math.abs(ang) > 0.05) {
+            lid.setAttribute("d", `M${f(xOut)},${f(y - size - 6)} L${f(xIn)},${f(y - size - 6)} L${f(xIn)},${f(yIn)} L${f(xOut)},${f(yOut)} Z`);
+            lidLine.setAttribute("d", `M${f(xOut)},${f(yOut)} Q${f(cx)},${f(ly + (blink > 0.9 ? 6 : -4))} ${f(xIn)},${f(yIn)}`);
+          } else { lid.setAttribute("d", ""); lidLine.setAttribute("d", ""); }
+          // lower lid: rises in an upward arc (happy / squinting)
+          const sq = x.squint || 0;
+          if (sq > 0.02 && blink < 0.9) {
+            const ty = y + size + 2 - sq * size * 1.05;
+            const arc = `M${f(cx - size - 3)},${f(ty + 6)} Q${f(cx)},${f(ty - 12)} ${f(cx + size + 3)},${f(ty + 6)}`;
+            low.setAttribute("d", `${arc} L${f(cx + size + 3)},${f(y + size + 6)} L${f(cx - size - 3)},${f(y + size + 6)} Z`);
+            lowLine.setAttribute("d", arc);
+          } else { low.setAttribute("d", ""); lowLine.setAttribute("d", ""); }
         }
       },
     };
@@ -331,14 +350,22 @@
     const sizes = E.sizes || [1, 1];
     const br = [-1, 1].map(() => el("path", { fill: "none", stroke: R.line.color, "stroke-width": B.type === "thick" ? B.width * 2 : B.width, "stroke-linecap": "round" }, face));
     return {
-      update(m, look) {
+      /** m: raise (browUp); x.browAngle: +1 angry (inner ends down) … -1 sad (inner ends up); x.browTilt: raise the right brow only (skeptical) */
+      update(m, look, x = {}) {
+        const a = x.browAngle || 0, tl = x.browTilt || 0;
         br.forEach((b, i) => {
-          const s = i ? 1 : -1, cx = s * E.gap, lift = m * 16, sz = E.size * sizes[i];
+          const s = i ? 1 : -1, cx = s * E.gap, sz = E.size * sizes[i];
+          const lift = m * 16 + (i ? tl * 16 : -tl * 4);
+          const inner = cx - s * sz * 0.75, outer = cx + s * sz * 0.85;
           if (B.type === "worried") {
-            // thin, high on the forehead, inner end raised
-            const yy = E.y * r - sz * 1.55 - lift, inner = cx - s * sz * 0.75, outer = cx + s * sz * 0.85;
-            b.setAttribute("d", `M${f(inner)},${f(yy - 10 - m * 8)} Q${f(cx)},${f(yy - 14)} ${f(outer)},${f(yy + 4)}`);
-          } else b.setAttribute("d", `M${f(cx - sz * 0.8)},${f(y - lift + s * 2)} Q${f(cx)},${f(y - 10 - lift)} ${f(cx + sz * 0.8)},${f(y - lift - s * 2)}`);
+            // thin, high on the forehead, inner end raised at rest
+            const yy = E.y * r - sz * 1.55 - lift;
+            const yIn = yy - 10 - m * 8 + a * 26, yOut = yy + 4 - a * 6;
+            b.setAttribute("d", `M${f(inner)},${f(yIn)} Q${f(cx)},${f((yIn + yOut) / 2 - 10 + Math.abs(a) * 4)} ${f(outer)},${f(yOut)}`);
+          } else {
+            const yIn = y - lift + a * 16, yOut = y - lift - a * 6;
+            b.setAttribute("d", `M${f(outer)},${f(yOut)} Q${f(cx)},${f(y - 10 - lift)} ${f(inner)},${f(yIn)}`);
+          }
         });
       },
     };
@@ -353,7 +380,7 @@
     else if (N === "hook") el("path", { ...stroke, d: `M-2,${y - 18} Q22,${y + 8} 2,${y + 16}`, fill: spec.skin }, face);
   }
 
-  function drawMouth(node, R, m) {
+  function drawMouth(node, R, m, x = {}) {
     const M = R.mouth, r = R.proportions.headR, y = R.eyes.y * r + R.eyes.size * 1.05 + 46, w = (M.width || 46) / 2;
     if (M.type === "toothy") {
       // closed: short, slightly sulky line. open: dark mouth, top row of teeth, tongue
@@ -363,19 +390,43 @@
         const tongue = T.el("path", { fill: "#c95a63" }, p);
         return { teeth, tongue };
       })());
-      const wO = w * (0.55 + m * 0.5), open = m * r * 0.55;
-      if (m < 0.05) {
-        node.setAttribute("d", `M${f(-w * 0.45)},${f(y + 4)} Q0,${f(y - 4)} ${f(w * 0.45)},${f(y + 6)}`);
-        node.setAttribute("fill", "none");
+      // x: smile -1 (frown) … +1 (grin), grit (clenched teeth), wavy (nervous/confused squiggle), smirk (one corner up)
+      const sm = x.smile || 0, grit = x.grit || 0, wavy = x.wavy || 0, smirk = x.smirk || 0;
+      const TEETH = "#f3efd9";
+      g.teeth.setAttribute("fill", TEETH);
+      if (m < 0.05 && grit > 0.3) {
+        // clenched teeth: a lens of teeth with vertical gaps
+        const gw = w * (0.5 + grit * 0.4 + Math.max(0, sm) * 0.25), gh = 9 + grit * 9, cy0 = y + 2, cY = cy0 - sm * 10;
+        node.setAttribute("d", `M${f(-gw)},${f(cY - smirk * 10)} Q0,${f(cy0 - gh * 1.4 + sm * 6)} ${f(gw)},${f(cY)} Q0,${f(cy0 + gh * 1.4 + sm * 6)} ${f(-gw)},${f(cY - smirk * 10)} Z`);
+        node.setAttribute("fill", TEETH);
+        let d = `M${f(-gw * 0.85)},${f(cy0 + sm * 2)} L${f(gw * 0.85)},${f(cy0 + sm * 2)} `;
+        for (let k = -2; k <= 2; k++) d += `M${f((k * gw) / 3)},${f(cy0 - gh * 0.6)} L${f((k * gw) / 3)},${f(cy0 + gh * 0.6)} `;
+        g.teeth.setAttribute("d", d); g.teeth.setAttribute("fill", "none");
+        g.tongue.setAttribute("d", "");
+      } else if (m < 0.05) {
         g.teeth.setAttribute("d", ""); g.tongue.setAttribute("d", "");
+        node.setAttribute("fill", "none");
+        if (wavy > 0.3) {
+          const a = w * 0.32;
+          node.setAttribute("d", `M${f(-a * 1.5)},${f(y + 2)} q${f(a / 2)},${f(-7 * wavy)} ${f(a)},0 t${f(a)},0 t${f(a)},0`);
+        } else {
+          // closed: short sulky line at rest; corners lift with smile, drop with frown
+          const ww = w * (0.45 + Math.abs(sm) * 0.3);
+          node.setAttribute("d", `M${f(-ww)},${f(y + 4 - sm * 14 - smirk * 14)} Q0,${f(y - 4 + sm * 18 + smirk * 4)} ${f(ww)},${f(y + 6 - sm * 14)}`);
+        }
       } else {
-        node.setAttribute("d", `M${f(-wO)},${f(y)} Q0,${f(y - 8)} ${f(wO)},${f(y)} Q${f(wO * 0.9)},${f(y + open)} 0,${f(y + open)} Q${f(-wO * 0.9)},${f(y + open)} ${f(-wO)},${f(y)} Z`);
+        const wO = w * (0.55 + m * 0.5 + Math.max(0, sm) * 0.2), open = m * r * 0.55;
+        const cY = y - sm * 12, lY = cY - smirk * 12;
+        const topC = sm >= 0 ? y - 8 + sm * 6 : y - 8 + sm * 18; // grin: flatter top edge; frown: arched top
+        const ob = y + open * (sm >= 0 ? 1 + sm * 0.25 : 1 + sm * 0.35);
+        node.setAttribute("d", `M${f(-wO)},${f(lY)} Q0,${f(topC)} ${f(wO)},${f(cY)} Q${f(wO * 0.9)},${f(ob)} 0,${f(ob)} Q${f(-wO * 0.9)},${f(ob)} ${f(-wO)},${f(lY)} Z`);
         node.setAttribute("fill", "#6b1f2c");
-        const th = Math.min(open * 0.3, 14);
+        const th = Math.min(open * 0.3, 14), ty = (cY + topC) / 2 - 1;
         let d = "";
-        for (let k = -2; k <= 2; k++) { const x0 = (k * wO) / 3; d += `M${f(x0 - wO / 7)},${f(y - 4)} L${f(x0 + wO / 7)},${f(y - 4)} L${f(x0 + wO / 8)},${f(y - 4 + th)} L${f(x0 - wO / 8)},${f(y - 4 + th)} Z `; }
+        for (let k = -2; k <= 2; k++) { const x0 = (k * wO) / 3; d += `M${f(x0 - wO / 7)},${f(ty)} L${f(x0 + wO / 7)},${f(ty)} L${f(x0 + wO / 8)},${f(ty + th)} L${f(x0 - wO / 8)},${f(ty + th)} Z `; }
+        if (grit > 0.3) for (let k = -2; k <= 2; k++) { const x0 = (k * wO) / 3.4; d += `M${f(x0 - wO / 8)},${f(ob - 2)} L${f(x0 + wO / 8)},${f(ob - 2)} L${f(x0 + wO / 9)},${f(ob - 2 - th)} L${f(x0 - wO / 9)},${f(ob - 2 - th)} Z `; }
         g.teeth.setAttribute("d", d);
-        g.tongue.setAttribute("d", `M${f(-wO * 0.5)},${f(y + open * 0.92)} Q0,${f(y + open * 0.45)} ${f(wO * 0.5)},${f(y + open * 0.92)} Z`);
+        g.tongue.setAttribute("d", grit > 0.3 ? "" : `M${f(-wO * 0.5)},${f(ob - open * 0.08)} Q0,${f(y + open * 0.45)} ${f(wO * 0.5)},${f(ob - open * 0.08)} Z`);
       }
       return;
     }
@@ -404,6 +455,85 @@
     el("path", { d: `M${-E.gap + rrOf(0)},${y - 4} Q0,${y - 12} ${E.gap - rr},${y - 4}`, fill: "none", stroke: c, "stroke-width": Math.max(4, R.line.width) }, face);
   }
 
+  /** blush, tears, sweat — drawn on the face, driven by pose fields of the same name (0..1) */
+  function drawExtras(face, R) {
+    const el = T.el, r = R.proportions.headR, E = R.eyes, ey = E.y * r, LC = R.line.color, lw = Math.max(2, R.line.width * 0.7);
+    const blush = [-1, 1].map((s) => el("ellipse", { cx: s * (E.gap + 6), cy: ey + E.size * 1.5, rx: E.size * 0.75, ry: E.size * 0.32, fill: "#ef7f86", opacity: 0 }, face));
+    const tears = [-1, 1].map(() => el("path", { fill: "#a9dcf5", stroke: LC, "stroke-width": lw, "stroke-linejoin": "round" }, face));
+    const drops = [-1, 1].map(() => el("ellipse", { rx: 5, ry: 7, fill: "#a9dcf5", stroke: LC, "stroke-width": lw * 0.8 }, face));
+    const sweat = el("path", { fill: "#cfeeff", stroke: LC, "stroke-width": lw }, face);
+    return {
+      update(p) {
+        const b = p.blush || 0, tr = p.tears || 0, sw = p.sweat || 0, t = p.t || 0;
+        blush.forEach((n) => n.setAttribute("opacity", (b * 0.75).toFixed(2)));
+        [-1, 1].forEach((s, i) => {
+          if (tr < 0.05) { tears[i].setAttribute("d", ""); drops[i].setAttribute("opacity", "0"); return; }
+          // a stream from the lower eye down the cheek, widening, with a drop falling off the end
+          const x0 = s * (E.gap + E.size * 0.2), y0 = ey + E.size * 0.85, len = r * 0.9 * tr, wv = Math.sin(t * 9 + i) * 3;
+          tears[i].setAttribute("d", `M${f(x0 - 5)},${f(y0)} Q${f(x0 - 8 + wv)},${f(y0 + len * 0.5)} ${f(x0 - 4 + s * 6)},${f(y0 + len)} L${f(x0 + 8 + s * 6)},${f(y0 + len)} Q${f(x0 + 8 + wv)},${f(y0 + len * 0.5)} ${f(x0 + 5)},${f(y0)} Z`);
+          const k = (t * 1.6 + i * 0.5) % 1;
+          drops[i].setAttribute("cx", f(x0 + 2 + s * 6)); drops[i].setAttribute("cy", f(y0 + len + 8 + k * 60)); drops[i].setAttribute("opacity", (tr * (1 - k)).toFixed(2));
+        });
+        if (sw < 0.05) sweat.setAttribute("d", "");
+        else { const sx = r * 0.82, sy = ey - E.size * 1.2 + ((t * 0.5) % 1) * 24 * sw, sz = 9 + sw * 6; sweat.setAttribute("d", `M${f(sx)},${f(sy - sz * 1.6)} Q${f(sx + sz)},${f(sy)} ${f(sx)},${f(sy + sz * 0.6)} Q${f(sx - sz)},${f(sy)} ${f(sx)},${f(sy - sz * 1.6)} Z`); }
+      },
+    };
+  }
+
+  /**
+   * EMOTIONS — face + body presets. pose({ emotion: "angry", …live acting… }) merges them.
+   * Face fields: smile, grit, wavy, smirk, squint, pupil, lidRest, lidAngle, browUp, browAngle,
+   * browTilt, blush, tears, sweat, mouthMin (the mouth never closes below this while it lasts).
+   * Body fields: lean, headTilt, squash, handL, handR, bendL, bendR, look, lookY.
+   */
+  const EMOTIONS = {
+    neutral: {},
+    happy: { smile: 0.8, squint: 0.35, browUp: 0.3, headTilt: -4 },
+    laugh: { smile: 1, mouthMin: 0.8, squint: 0.85, browUp: 0.5, headTilt: -8, lean: -3, handL: { x: 70, y: -90 }, handR: { x: -70, y: -90 } },
+    excited: { smile: 1, mouthMin: 0.7, browUp: 0.9, pupil: 1.25, handL: { x: -40, y: -330 }, handR: { x: 40, y: -330 }, squash: -0.03 },
+    dreamy: { smile: 0.55, lidRest: 0.42, blush: 0.9, browAngle: -0.5, browUp: 0.3, headTilt: 9, lookY: -0.6, handL: { x: 120, y: -170 }, handR: { x: -120, y: -170 } },
+    smug: { smirk: 1, smile: 0.35, lidRest: 0.45, browTilt: 0.6, headTilt: -6, handL: { x: 60, y: -40 }, handR: { x: -60, y: -40 } },
+    bored: { lidRest: 0.55, smile: -0.2, browUp: -0.3, headTilt: 7, lean: 2, look: -0.3 },
+    sad: { smile: -0.8, browAngle: -1, browUp: 0.3, lidRest: 0.2, lookY: 0.6, headTilt: 6, squash: 0.02 },
+    crying: { smile: -1, mouthMin: 0.5, browAngle: -1, browUp: 0.5, squint: 0.5, lidRest: 0.2, tears: 1, headTilt: 5, squash: 0.03 },
+    surprised: { mouthMin: 0.55, browUp: 1, pupil: 0.7 },
+    shocked: { mouthMin: 1, smile: -0.3, browUp: 1.3, pupil: 0.45, lean: -4, handL: { x: -90, y: -210 }, handR: { x: 90, y: -210 }, bendL: 80, bendR: -80 },
+    scared: { smile: -0.6, mouthMin: 0.45, browAngle: -1, browUp: 0.8, pupil: 0.5, sweat: 1, lean: -6, squash: 0.04, handL: { x: 90, y: -190 }, handR: { x: -90, y: -190 } },
+    nervous: { grit: 0.8, smile: 0.3, browAngle: -0.8, pupil: 0.7, sweat: 1, headTilt: 4 },
+    embarrassed: { smile: 0.3, wavy: 0.7, blush: 1, browAngle: -0.6, look: -1, lookY: 0.4, sweat: 0.5, headTilt: 8, handL: { x: 60, y: -130 }, handR: { x: -60, y: -130 } },
+    confused: { wavy: 1, browTilt: 1, look: 0.5, lookY: -0.3, headTilt: 10, handR: { x: 30, y: -150 }, bendR: -70, handL: { x: 20, y: -40 } },
+    skeptical: { smile: -0.25, browTilt: 1, lidRest: 0.35, squint: 0.3, look: -0.7, headTilt: -5 },
+    disgusted: { smile: -0.6, grit: 0.7, squint: 0.55, browAngle: 0.6, browTilt: 0.5, lean: -5, headTilt: -8 },
+    angry: { smile: -0.5, grit: 0.9, browAngle: 1, lidRest: 0.22, lidAngle: 1, squint: 0.2, lean: 3, handL: { x: 10, y: 10 }, handR: { x: -10, y: 10 } },
+    furious: { mouthMin: 1, smile: -0.4, grit: 0.6, browAngle: 1.2, lidRest: 0.18, lidAngle: 1, pupil: 0.6, lean: 5, squash: -0.03, handL: { x: -60, y: -300 }, handR: { x: 60, y: -300 } },
+  };
+  const isXY = (v) => v && typeof v === "object" && "x" in v;
+  /** blend two emotions (k: 0 → a, 1 → b), numbers and {x,y} offsets */
+  function blendEmotion(a, b, k) {
+    const A = typeof a === "string" ? EMOTIONS[a] || {} : a || {}, B = typeof b === "string" ? EMOTIONS[b] || {} : b || {};
+    const out = {};
+    for (const key of new Set([...Object.keys(A), ...Object.keys(B)])) {
+      const va = A[key], vb = B[key];
+      if (isXY(va) || isXY(vb)) { const pa = va || { x: 0, y: 0 }, pb = vb || { x: 0, y: 0 }; out[key] = { x: pa.x + (pb.x - pa.x) * k, y: pa.y + (pb.y - pa.y) * k }; }
+      else out[key] = (va || 0) + ((vb || 0) - (va || 0)) * k;
+    }
+    return out;
+  }
+  /** merge an emotion preset into live pose fields: offsets add, the mouth keeps its minimum */
+  function withEmotion(p) {
+    const E = typeof p.emotion === "string" ? EMOTIONS[p.emotion] || {} : p.emotion;
+    const out = { ...p };
+    for (const [k, v] of Object.entries(E)) {
+      if (k === "mouthMin") continue;
+      if (isXY(v)) { const live = p[k] || { x: 0, y: 0 }; out[k] = { x: v.x + live.x * 0.4, y: v.y + live.y * 0.4 }; }
+      else if (["lean", "headTilt", "squash", "browUp", "look", "lookY"].includes(k)) out[k] = v + (p[k] || 0);
+      else if (p[k] == null) out[k] = v;
+    }
+    if (E.mouthMin) out.mouth = Math.max(p.mouth || 0, E.mouthMin * (p.talking ? 0.7 : 1));
+    if (E.lidRest != null) out.lidRest = Math.max(E.lidRest, p.lidRest || 0);
+    return out;
+  }
+
   T.characters = T.characters || {};
-  T.characters.kit = { build, DEFAULT_RULES };
+  T.characters.kit = { build, DEFAULT_RULES, EMOTIONS, blendEmotion, withEmotion };
 })(window);

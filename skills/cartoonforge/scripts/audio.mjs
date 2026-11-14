@@ -10,7 +10,9 @@
  *     "voice": "af_heart",           // Kokoro voice (engine kokoro)
  *     "engine": "auto",              // auto | kokoro | say | espeak | none (captions only)
  *     "start": 1.8, "gap": 0.35,     // when the first line starts; pause between lines
- *     "lines": ["Hi!", {"text": "Look up!", "at": 5.2}],
+ *     "lines": ["Hi!", {"text": "Look up!", "at": 5.2, "emotion": "surprised"}],   // extra fields ride on the caption cue
+ *     "genre": "citypop",            // OPTIONAL: music genre (default: the style's)
+ *     "data": { "beats": [...] },    // OPTIONAL: merged into window.CF (e.g. scene changes)
  *     "recording": "my-voice.m4a",   // OPTIONAL: your own voice instead of TTS (lines then = caption text, optional)
  *     "voiceFx": "style",            // style (from style.json) | any name in lib/audio/fx.mjs VOICE_FX
  *     "music": true,                 // true = generate in the style's genre, false = none, or a path
@@ -66,7 +68,7 @@ const duration = (f) => parseFloat(sh("ffprobe", ["-v", "error", "-show_entries"
 const KOKORO_LANG = { en: "a", "en-gb": "b", es: "e", fr: "f", it: "i", pt: "p", hi: "h", ja: "j", zh: "z" };
 const ESPEAK_LANG = { en: "en-us", "en-gb": "en-gb", ru: "ru", es: "es", fr: "fr", it: "it", pt: "pt", de: "de", pl: "pl" };
 const lang = (S.lang || "en").toLowerCase();
-const kokoroOk = () => KOKORO_LANG[lang] && sh("python3", ["-c", "import kokoro, soundfile"]).status === 0;
+const kokoroOk = () => KOKORO_LANG[lang] && (sh("python3", ["-c", "import kokoro, soundfile"]).status === 0 || sh("python3", ["-c", "import kokoro_onnx, soundfile"]).status === 0);
 
 let engine = S.recording ? "recording" : S.engine || "auto";
 if (engine === "auto") {
@@ -76,7 +78,7 @@ if (engine === "auto") {
   else engine = "none";
   if (engine !== "kokoro") {
     console.warn(`! Kokoro not available${KOKORO_LANG[lang] ? "" : ` for "${lang}"`} — using "${engine}".` +
-      (KOKORO_LANG[lang] ? "  For the good free voice: pip install kokoro soundfile" : ""));
+      (KOKORO_LANG[lang] ? "  For the good free voice: pip install kokoro soundfile  (or kokoro-onnx, see voice_kokoro.py)" : ""));
   }
 }
 const speed = S.speed ?? meta.voice?.speed ?? 1;
@@ -124,7 +126,9 @@ if (S.recording) {
     if (typeof line === "object" && line.at != null) cursor = line.at;
     const f = join(tmp, `line${i}.wav`);
     const d = speak(text, f);
-    captions.push({ start: +cursor.toFixed(3), end: +(cursor + d).toFixed(3), text });
+    // extra per-line fields (emotion, scene, …) travel with the caption cue to the film
+    const extra = typeof line === "object" ? Object.fromEntries(Object.entries(line).filter(([k]) => !["text", "at"].includes(k))) : {};
+    captions.push({ start: +cursor.toFixed(3), end: +(cursor + d).toFixed(3), text, ...extra });
     if (engine !== "none") voiceInputs.push({ f, at: cursor });
     cursor += d + (S.gap ?? 0.35);
   });
@@ -217,7 +221,7 @@ const musicWav = join(assets, "music.wav");
 let haveMusic = false;
 if (S.music === true) {
   const raw = join(tmp, "music.raw.wav");
-  writeFileSync(raw, wav(compose({ genre: meta.music?.genre || "ragtime", bpm, seconds: DUR, seed: S.seed ?? 7 })));
+  writeFileSync(raw, wav(compose({ genre: S.genre || meta.music?.genre || "ragtime", bpm, seconds: DUR, seed: S.seed ?? 7 })));
   // style colouring (lib/audio/fx.mjs): e.g. gramophone = band-limited + crackle
   const mfx = meta.music?.fx ?? meta.music?.lofi ?? "none";
   const nz = MUSIC_NOISE[mfx];
@@ -252,7 +256,7 @@ if (hasAudio) {
 }
 
 // ---------------------------------------------------------------- film data
-writeFileSync(join(dir, "cf-data.js"), `window.CF = ${JSON.stringify({ duration: DUR, bpm, captions }, null, 2)};\n`);
+writeFileSync(join(dir, "cf-data.js"), `window.CF = ${JSON.stringify({ ...(S.data || {}), duration: DUR, bpm, captions }, null, 2)};\n`);
 
 let out = html.replace(/data-duration="[\d.]+"/g, `data-duration="${DUR}"`);
 const tag = `<audio id="soundtrack" class="clip" data-start="0" data-duration="${DUR}" data-track-index="1" data-volume="1" src="assets/soundtrack.wav"></audio>`;
@@ -261,5 +265,5 @@ if (hasAudio) out = out.replace("<!-- cf:audio -->", `<!-- cf:audio -->\n      $
 writeFileSync(join(dir, "index.html"), out);
 
 console.log(`✓ voice: ${engine}${engine === "espeak" ? " (robotic — fine for drafts; install Kokoro for the real voice)" : ""}`);
-console.log(`✓ duration: ${DUR}s · ${captions.length} caption cue(s) · music: ${haveMusic ? (S.music === true ? meta.music?.genre || "ragtime" : "file") : "none"}`);
+console.log(`✓ duration: ${DUR}s · ${captions.length} caption cue(s) · music: ${haveMusic ? (S.music === true ? S.genre || meta.music?.genre || "ragtime" : "file") : "none"}`);
 if (hasAudio) console.log(`✓ ${soundtrack}`);

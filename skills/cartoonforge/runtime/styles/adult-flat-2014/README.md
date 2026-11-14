@@ -25,6 +25,16 @@ devices or locations.
 | `desert` | yellow-green sky, lavender hills, candy trees, pink ring pools |
 | `dusk` | orange sky, streaky giant planet, ringed planet with spore trail, spires, crystals |
 | `station` | pale sci-fi corridor: pipe ribs, hazard doors, alien-glyph ad, glass tube |
+| `paris` | lattice iron tower over the river, mansard building, café awning, pigeon |
+| `london` | gothic clock tower, red double-decker and phone box, rain |
+| `newyork` | brick canyon, water tower, fire escape, yellow cab, steaming manhole |
+| `tokyo` | neon street with made-up glyph signs, paper lanterns, lattice tower, vending machine |
+| `giza` | three pyramids, reclining stone guardian, camel, scarab |
+| `rio` | dome mountain with cable car, palms, beach, wavy mosaic promenade |
+| `venice` | canal houses, gondola, striped mooring poles, bell tower, stone bridge |
+
+Several sets in one film: `templates/film-worlds.html` ("one frame, many worlds" — the character stays put,
+the world swaps through a swirling vortex on the beat). Pass `--template worlds` to `new-film.mjs`.
 
 ## Background rules (from the reference study)
 - Same thin black line as the characters; many lines left **open** (ground contours, folds).
@@ -33,3 +43,8 @@ devices or locations.
 - Skies: smooth gradient + long flat cloud bands in a darker tone of the sky.
 - Lots of small everyday clutter that carries jokes; big props cut by the frame edges.
 - Characters cast a soft flat contact shadow.
+
+## Emotions
+The character kit has 19 presets (`T.characters.kit.EMOTIONS`): neutral, happy, laugh, excited, dreamy, smug,
+bored, sad, crying, surprised, shocked, scared, nervous, embarrassed, confused, skeptical, disgusted, angry,
+furious. Put `"emotion": "…"` on a script line; the face and body blend into it while the line is spoken.

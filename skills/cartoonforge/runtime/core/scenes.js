@@ -97,7 +97,7 @@
    *   tear  = a jagged rip sweeps across (sci-fi / adult comedy)
    *   swirl = a spiral closes and opens (whimsical)
    */
-  function transition(parent, { width: W, height: H, at, dur = 0.5, type = "fade", color = "#000", glow = null }) {
+  function transition(parent, { width: W, height: H, at, dur = 0.5, type = "fade", color = "#000", glow = null, vortex = null }) {
     const g = T.el("g", { opacity: 0 }, parent);
     const cover = T.el("path", { fill: color }, g);
     const edge = glow ? T.el("path", { fill: "none", stroke: glow, "stroke-width": 18, "stroke-linejoin": "round", opacity: 0.9 }, g) : null;
@@ -121,6 +121,23 @@
           d += ` L${back},${H + 60} Z`;
           cover.setAttribute("d", d);
           if (edge) edge.setAttribute("d", "M" + pts.map(([x, y]) => `${x.toFixed(0)},${y}`).join(" L"));
+        } else if (type === "vortex") {
+          // a swirling portal that opens from the centre to fill the frame, then closes on the new place
+          if (!g.__vx) {
+            const C = vortex || {};
+            const gid = `vx-${Math.random().toString(36).slice(2, 7)}`;
+            const gr = T.el("radialGradient", { id: gid }, g);
+            [[0, C.dark || "#5a1a96", 1], [55, C.body || "#a94de8", 1], [82, C.rim || "#eac0ff", 1], [100, C.glow || "#d98cff", 0]].forEach(([o, c, a]) => T.el("stop", { offset: `${o}%`, "stop-color": c, "stop-opacity": a }, gr));
+            const disc = T.el("ellipse", { fill: `url(#${gid})` }, g);
+            const arms = T.el("g", {}, g);
+            for (let k = 0; k < 3; k++) T.el("path", { d: T.shapes.spiral(0, 0, 100, 1.4, 1, (k * Math.PI * 2) / 3), fill: "none", stroke: k ? C.light || "#f6d9ff" : C.dark || "#5a1a96", "stroke-width": k ? 5 : 14, "stroke-linecap": "round", opacity: 0.85 }, arms);
+            g.__vx = { disc, arms };
+            cover.setAttribute("d", "");
+          }
+          const R = Math.pow(cl, 0.8) * 1250 + 1;
+          g.__vx.disc.setAttribute("cx", W / 2); g.__vx.disc.setAttribute("cy", H * 0.42);
+          g.__vx.disc.setAttribute("rx", (R * 0.85).toFixed(1)); g.__vx.disc.setAttribute("ry", (R * 1.25).toFixed(1));
+          g.__vx.arms.setAttribute("transform", `translate(${W / 2},${H * 0.42}) scale(${(R * 0.008).toFixed(3)},${(R * 0.0115).toFixed(3)}) rotate(${(-t * 400).toFixed(1)})`);
         } else if (type === "swirl") {
           cover.setAttribute("d", irisPath(W, H, W / 2, H / 2, (1 - cl) * 1300));
           if (edge) edge.setAttribute("d", T.shapes.spiral(W / 2, H / 2, (1 - cl) * 900 + 40, 1.5, 1, t * 8));
