@@ -505,6 +505,8 @@
     skeptical: { smile: -0.25, browTilt: 1, lidRest: 0.35, squint: 0.3, look: -0.7, headTilt: -5 },
     disgusted: { smile: -0.6, grit: 0.7, squint: 0.55, browAngle: 0.6, browTilt: 0.5, lean: -5, headTilt: -8 },
     angry: { smile: -0.5, grit: 0.9, browAngle: 1, lidRest: 0.22, lidAngle: 1, squint: 0.2, lean: 3, handL: { x: 10, y: 10 }, handR: { x: -10, y: 10 } },
+    hysterical: { mouthMin: 1, smile: -0.5, browAngle: -0.8, browUp: 1.2, pupil: 0.4, sweat: 1, lean: -3, squash: -0.04, handL: { x: 30, y: -330 }, handR: { x: -30, y: -330 } },
+    deadpan: { lidRest: 0.3, smile: -0.1 },
     furious: { mouthMin: 1, smile: -0.4, grit: 0.6, browAngle: 1.2, lidRest: 0.18, lidAngle: 1, pupil: 0.6, lean: 5, squash: -0.03, handL: { x: -60, y: -300 }, handR: { x: 60, y: -300 } },
   };
   const isXY = (v) => v && typeof v === "object" && "x" in v;

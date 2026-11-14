@@ -90,26 +90,38 @@ const speed = S.speed ?? meta.voice?.speed ?? 1;
  * Acting in the voice: each emotion nudges delivery (speed ×, pitch in semitones, gain ×).
  * A line can override any of them: { "text": "…", "emotion": "furious", "speed": 1.2, "pitch": 2, "gain": 1.6 }.
  */
+// [speed ×, pitch st, gain ×, contour from st, contour to st, crack st, wobble st, stammer n, swoop st]
+// tuned on reference clips (see references/voice-acting.md): emotion lives in pitch movement, not volume
 const EMO_VOICE = {
-  happy: [1.05, 0.8, 1.1], laugh: [1.12, 1.5, 1.3], excited: [1.15, 2, 1.4], dreamy: [0.86, 0.6, 0.85], smug: [0.9, -0.6, 0.95],
-  bored: [0.82, -1, 0.75], sad: [0.85, -0.8, 0.8], crying: [0.88, 1.2, 0.95], surprised: [1.05, 1.5, 1.15], shocked: [1.08, 2.2, 1.35],
-  scared: [1.2, 2, 1.35], nervous: [1.15, 1, 0.95], embarrassed: [0.92, 0.8, 0.8], confused: [0.92, 0.6, 1], skeptical: [0.9, -0.6, 0.95],
-  disgusted: [0.92, -0.8, 1.05], angry: [1.05, -0.5, 1.4], furious: [1.12, 1, 1.8],
+  happy: [1.05, 1.5, 1.1, 0, 1.5, 0, 0, 0], laugh: [1.12, 2, 1.3, 1, -2, 4, 0, 0], excited: [1.15, 3, 1.4, 1, 3, 3, 0, 0],
+  dreamy: [0.86, 0.5, 0.85, 1, -2.5, 0, 0, 0], smug: [0.9, -1, 0.95, 0, -2.5, 0, 0, 0],
+  bored: [0.82, -3, 0.8, 0, -2, 0, 0, 0], sad: [0.85, -3.5, 0.8, 0, -2.5, 0, 0, 0], crying: [0.88, 1, 0.95, 2, -4, 0, 1.2, 0],
+  surprised: [1.05, 2, 1.15, 2, -1, 9, 0, 0], shocked: [1.08, 3.5, 1.35, 3, -5, 10, 0, 0, 3], scared: [1.2, 4, 1.35, 3, -6, 6, 0.8, 0],
+  nervous: [1.15, 1, 0.95, 1, 0, 0, 1, 2], embarrassed: [0.92, 1, 0.8, 1, -2, 0, 0.5, 1],
+  confused: [0.92, 1, 1, -1, 3, 0, 0, 0], skeptical: [0.9, -1, 0.95, -1, 2, 0, 0, 0],
+  disgusted: [0.92, -1.5, 1.05, 0, -3, 0, 0, 0], angry: [1.05, -0.5, 1.4, 1, -3, 0, 0, 0], furious: [1.12, 3.5, 1.8, 3, -4, 5, 0, 0, 3.5], hysterical: [1.12, 5, 1.7, 2, 0, 6, 0, 0, 5], deadpan: [0.95, -1, 0.95, 0, -1.5, 0, 0, 0],
 };
+/** a line can override any field: { "emotion": "scared", "speed": 1.2, "pitch": 2, "gain": 1.5, "from": 3, "to": -6, "crack": 8, "wobble": 1, "stammer": 2 } */
 function delivery(line) {
   const o = typeof line === "object" ? line : {};
-  const [sp, pt, gn] = EMO_VOICE[o.emotion] || [1, 0, 1];
-  return { speed: speed * (o.speed ?? sp), pitch: o.pitch ?? pt, gain: o.gain ?? gn };
+  const [sp, pt, gn, fr, to, cr, wb, stm, sw = 0] = EMO_VOICE[o.emotion] || [1, 0, 1, 0, 0, 0, 0, 0];
+  return { speed: speed * (o.speed ?? sp), pitch: o.pitch ?? pt, gain: o.gain ?? gn, from: o.from ?? fr, to: o.to ?? to, crack: o.crack ?? cr, wobble: o.wobble ?? wb, stammer: o.stammer ?? stm, swoop: o.swoop ?? sw };
 }
 function speak(text, out, line) {
   const dl = delivery(line);
   if (engine === "kokoro") {
     const raw = out.replace(/\.wav$/, ".raw.wav");
     must(sh("python3", [join(HERE, "voice_kokoro.py"), text, "--voice", (typeof line === "object" && line.voice) || S.voice || "af_heart", "--lang", KOKORO_LANG[lang], "--speed", String(dl.speed), "--out", raw]), "kokoro");
-    // pitch shift without changing tempo, then gain; shouts get a touch of grit
+    // intonation: contour, crack, wobble, stammer (voice_acting.py), then static pitch + gain
+    let src = raw;
+    if (dl.from || dl.to || dl.crack || dl.wobble || dl.stammer || dl.swoop) {
+      const acted = out.replace(/\.wav$/, ".acted.wav");
+      must(sh("python3", [join(HERE, "voice_acting.py"), raw, acted, "--from", String(dl.from), "--to", String(dl.to), "--crack", String(dl.crack), "--wobble", String(dl.wobble), "--stammer", String(dl.stammer), "--swoop", String(dl.swoop)]), "voice acting contour");
+      src = acted;
+    }
     const r = Math.pow(2, dl.pitch / 12);
     const grit = dl.gain >= 1.6 ? ",asoftclip=type=tanh" : "";
-    must(sh("ffmpeg", ["-loglevel", "error", "-y", "-i", raw, "-af", `asetrate=${Math.round(24000 * r)},aresample=24000,atempo=${(1 / r).toFixed(4)},volume=${dl.gain}${grit}`, out]), "voice acting");
+    must(sh("ffmpeg", ["-loglevel", "error", "-y", "-i", src, "-af", `asetrate=${Math.round(24000 * r)},aresample=24000,atempo=${(1 / r).toFixed(4)},volume=${dl.gain}${grit}`, out]), "voice acting");
   } else if (engine === "say") {
     const aiff = out.replace(/\.wav$/, ".aiff");
     must(sh("say", ["-r", String(Math.round(185 * speed)), "-o", aiff, ...(S.voice && S.engine === "say" ? ["-v", S.voice] : []), text]), "say");
