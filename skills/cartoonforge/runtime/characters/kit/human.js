@@ -96,6 +96,13 @@
     el("path", { ...stroke, d: `M${-tw * 0.14},${shY + 4} L${tw * 0.14},${shY + 4} L${tw * 0.1},${hipY + 6} L${-tw * 0.1},${hipY + 6} Z`, fill: O.shirt || "#fff" }, gTorso);
     if (O.patch !== false) el("circle", { ...stroke, cx: -tw * 0.3, cy: shY + P.torsoH * 0.32, r: P.torsoW * 0.075, fill: O.accent || "#fd3" }, gTorso);
     el("path", { d: `M${tw * 0.14},${shY + 10} L${tw * 0.1},${hipY}`, stroke: LC, "stroke-width": Math.max(2, LW * 0.6), "stroke-dasharray": "6 6" }, gTorso);
+    // fold lines (a few strokes, as in TV comedy): sleeve-less torso creases + waist
+    if (R.folds) {
+      const th = { fill: "none", stroke: LC, "stroke-width": Math.max(1.5, LW * 0.55), "stroke-linecap": "round" };
+      el("path", { ...th, d: `M${-tw * 0.4},${shY + P.torsoH * 0.55} q${tw * 0.08},${-12} ${tw * 0.14},${-4}` }, gTorso);
+      el("path", { ...th, d: `M${tw * 0.33},${shY + P.torsoH * 0.7} q${-tw * 0.06},${-10} ${-tw * 0.12},${-2}` }, gTorso);
+      el("path", { ...th, d: `M${-tw * 0.06},${hipY - 30} q${tw * 0.04},${8} ${tw * 0.1},${2}` }, gTorso);
+    }
     // pockets
     for (const s of [-1, 1]) el("path", { d: `M${s * tw * 0.22},${hipY - 60} l${s * 40},0`, stroke: LC, "stroke-width": Math.max(2, LW * 0.7), "stroke-linecap": "round" }, gTorso);
     // backpack straps over the shoulders
@@ -137,8 +144,11 @@
       el("circle", { ...stroke, cx: hs * 0.15, cy: -hs * 1.05, r: hs * 0.42, fill: H.color }, head);
       el("path", { d: `M${hs * -0.1},${-hs * 1.2} q${hs * 0.25},${-hs * 0.2} ${hs * 0.45},0`, fill: "none", stroke: LC, "stroke-width": Math.max(2, LW * 0.6) }, head);
     }
-    el("ellipse", { ...stroke, cx: -P.headR * (P.headShape === "wideOval" ? 1.12 : 1.0), cy: P.headR * 0.05, rx: P.headR * 0.16, ry: P.headR * 0.22, fill: spec.skin }, head);
-    el("ellipse", { ...stroke, cx: P.headR * (P.headShape === "wideOval" ? 1.12 : 1.0), cy: P.headR * 0.05, rx: P.headR * 0.16, ry: P.headR * 0.22, fill: spec.skin }, head);
+    const earX = P.headR * (P.headShape === "wideOval" ? 1.12 : 1.0);
+    for (const s of [-1, 1]) {
+      el("ellipse", { ...stroke, cx: s * earX, cy: P.headR * 0.12, rx: P.headR * 0.17, ry: P.headR * 0.23, fill: spec.skin }, head);
+      if (R.ears === "c") el("path", { d: `M${f(s * earX + s * 2)},${f(P.headR * 0.02)} Q${f(s * (earX + P.headR * 0.1))},${f(P.headR * 0.12)} ${f(s * earX)},${f(P.headR * 0.24)}`, fill: "none", stroke: LC, "stroke-width": Math.max(2, LW * 0.7), "stroke-linecap": "round" }, head);
+    }
     el("path", { ...stroke, d: headD, fill: spec.skin }, head);
     // front hair: messy cap with bangs
     if (H.color) el("path", { ...stroke, d: hairFront(P.headShape, P.headR, H.type), fill: H.color }, head);
@@ -190,7 +200,7 @@
       const tilt = p.headTilt ?? (p.lean ?? 0) * -0.4;
       head.setAttribute("transform", `translate(0,${f(headCY + (p.headBob ?? 0))}) rotate(${f(tilt)})`);
       const look = (p.look ?? 0), blink = T.clamp(p.blink ?? 0), m = T.clamp(p.mouth ?? 0);
-      eyes.update(look, blink);
+      eyes.update(look, blink, p.lidRest);
       brows.update(p.browUp ?? 0, look);
       drawMouth(mouth, R, m);
       if (scarfTail) {
@@ -235,6 +245,20 @@
       el("path", { d: `M${-r * 0.4},${-r * 0.5} L${-r * 0.4},${r * 0.3} M0,${-r * 0.6} L0,${r * 0.3} M${r * 0.4},${-r * 0.5} L${r * 0.4},${r * 0.3}`, stroke: R.line.color, "stroke-width": 3 }, g);
       return;
     }
+    if (R.hands.type === "fingers") {
+      // long thin separate fingers (3 + thumb), drawn as rounded capsules from a small palm
+      const n = (R.hands.fingers || 4) - 1, L = r * 1.35;
+      for (let k = 0; k < n; k++) {
+        const a = ((k - (n - 1) / 2) * 16 * Math.PI) / 180;
+        const x1 = Math.sin(a) * L, y1 = r * 0.4 + Math.cos(a) * L;
+        el("path", { d: `M${f(Math.sin(a) * r * 0.3)},${f(r * 0.4)} L${f(x1)},${f(y1)}`, stroke: R.line.color, "stroke-width": r * 0.46 + (R.line.width || 0) * 2, "stroke-linecap": "round" }, g);
+        el("path", { d: `M${f(Math.sin(a) * r * 0.3)},${f(r * 0.4)} L${f(x1)},${f(y1)}`, stroke: spec.skin, "stroke-width": r * 0.46, "stroke-linecap": "round" }, g);
+      }
+      el("path", { d: `M${f(r * 0.4)},${f(r * 0.1)} L${f(r * 1.2)},${f(r * 0.55)}`, stroke: R.line.color, "stroke-width": r * 0.5 + (R.line.width || 0) * 2, "stroke-linecap": "round" }, g);
+      el("path", { d: `M${f(r * 0.4)},${f(r * 0.1)} L${f(r * 1.2)},${f(r * 0.55)}`, stroke: spec.skin, "stroke-width": r * 0.5, "stroke-linecap": "round" }, g);
+      el("ellipse", { ...stroke, cx: 0, cy: r * 0.15, rx: r * 0.62, ry: r * 0.55, fill: spec.skin }, g);
+      return;
+    }
     // mitten with 3 fingers + thumb (4 total)
     const n = (R.hands.fingers || 4) - 1;
     for (let k = 0; k < n; k++) el("ellipse", { ...stroke, cx: (k - (n - 1) / 2) * r * 0.55, cy: r * 0.95, rx: r * 0.3, ry: r * 0.5, fill: spec.skin }, g);
@@ -244,38 +268,56 @@
 
   function drawEyes(face, R, spec, stroke) {
     const E = R.eyes, r = R.proportions.headR, el = T.el, y = E.y * r;
-    const sides = [-1, 1].map((s) => {
+    const sizes = E.sizes || [1, 1];
+    const sides = [-1, 1].map((s, idx) => {
       const g = el("g", {}, face);
-      const cx = s * E.gap;
-      let pupil, extra;
+      const cx = s * E.gap, size = E.size * sizes[idx];
+      let pupil;
       if (E.type === "bigRound") {
-        el("circle", { ...stroke, cx, cy: y, r: E.size, fill: "#ffffff" }, g);
-        pupil = el("circle", { r: E.pupilSize * (s < 0 ? 1 : 0.85), fill: R.line.color }, g); // slightly uneven pupils
+        el("circle", { ...stroke, "stroke-width": E.lineWidth || stroke["stroke-width"], cx, cy: y, r: size, fill: "#ffffff" }, g);
+        if (E.pupil === "speck") {
+          // tiny irregular speck, not a perfect dot
+          const ps = E.pupilSize;
+          pupil = el("path", { d: `M${-ps},${-ps * 0.3} L${-ps * 0.2},${-ps} L${ps * 0.9},${-ps * 0.5} L${ps * 0.6},${ps * 0.8} L${-ps * 0.5},${ps * 0.9} Z`, fill: R.line.color }, g);
+        } else pupil = el("circle", { r: E.pupilSize * (s < 0 ? 1 : 0.85), fill: R.line.color }, g);
       } else if (E.type === "anime") {
-        el("ellipse", { ...stroke, cx, cy: y, rx: E.size * 0.8, ry: E.size, fill: "#fff" }, g);
+        el("ellipse", { ...stroke, cx, cy: y, rx: size * 0.8, ry: size, fill: "#fff" }, g);
         pupil = el("g", {}, g);
-        el("ellipse", { rx: E.size * 0.55, ry: E.size * 0.78, fill: spec.eyes || "#4a6bd1" }, pupil);
-        el("ellipse", { rx: E.size * 0.28, ry: E.size * 0.42, fill: R.line.color }, pupil);
-        el("circle", { cx: -E.size * 0.18, cy: -E.size * 0.32, r: E.size * 0.18, fill: "#fff" }, pupil);
-        extra = el("path", { d: `M${cx - E.size * 0.9},${y - E.size * 0.85} Q${cx},${y - E.size * 1.25} ${cx + E.size * 0.9},${y - E.size * 0.85}`, fill: "none", stroke: R.line.color, "stroke-width": 5, "stroke-linecap": "round" }, g);
+        el("ellipse", { rx: size * 0.55, ry: size * 0.78, fill: spec.eyes || "#4a6bd1" }, pupil);
+        el("ellipse", { rx: size * 0.28, ry: size * 0.42, fill: R.line.color }, pupil);
+        el("circle", { cx: -size * 0.18, cy: -size * 0.32, r: size * 0.18, fill: "#fff" }, pupil);
+        el("path", { d: `M${cx - size * 0.9},${y - size * 0.85} Q${cx},${y - size * 1.25} ${cx + size * 0.9},${y - size * 0.85}`, fill: "none", stroke: R.line.color, "stroke-width": 5, "stroke-linecap": "round" }, g);
       } else if (E.type === "dot" || E.type === "bead") {
         pupil = el("ellipse", { rx: E.pupilSize, ry: E.pupilSize * (E.type === "bead" ? 1.4 : 1), fill: R.line.color }, g);
       } else { // pie-cut
         pupil = el("g", {}, g);
-        el("ellipse", { rx: E.size * 0.55, ry: E.size, fill: R.line.color }, pupil);
-        el("path", { d: `M0,${-E.size * 0.35} L${-E.size * 0.3},${-E.size * 0.85} A${E.size * 0.3},${E.size * 0.3} 0 0 1 ${E.size * 0.2},${-E.size * 0.88} Z`, fill: "#fff" }, pupil);
+        el("ellipse", { rx: size * 0.55, ry: size, fill: R.line.color }, pupil);
+        el("path", { d: `M0,${-size * 0.35} L${-size * 0.3},${-size * 0.85} A${size * 0.3},${size * 0.3} 0 0 1 ${size * 0.2},${-size * 0.88} Z`, fill: "#fff" }, pupil);
       }
-      const lid = el("ellipse", { cx, cy: y, rx: E.size * 1.08, ry: 0, fill: spec.skin, stroke: R.line.color, "stroke-width": R.line.width ? Math.max(2, R.line.width * 0.8) : 0 }, g);
-      return { g, pupil, lid, cx, s };
+      // eyelid: a skin-coloured cap that slides down (blink) + its lid line; "tired" rests partly closed
+      const clipId = `eyeclip-${Math.random().toString(36).slice(2, 8)}`;
+      const cp = el("clipPath", { id: clipId }, g);
+      el("circle", { cx, cy: y, r: size + 1 }, cp);
+      const lid = el("rect", { x: cx - size - 2, y: y - size - 2, width: size * 2 + 4, height: 0, fill: spec.skin, "clip-path": `url(#${clipId})` }, g);
+      const lidLine = el("path", { fill: "none", stroke: R.line.color, "stroke-width": Math.max(2, (E.lineWidth || R.line.width) * 0.9), "stroke-linecap": "round" }, g);
+      if (E.bags) el("path", { d: `M${cx - size * 0.7},${y + size * 1.12} Q${cx},${y + size * 1.32} ${cx + size * 0.55},${y + size * 1.1}`, fill: "none", stroke: R.line.color, "stroke-width": Math.max(1.5, R.line.width * 0.55), "stroke-linecap": "round" }, g);
+      return { g, pupil, lid, lidLine, cx, s, size };
     });
     return {
-      update(look, blink) {
-        for (const { pupil, lid, cx, s } of sides) {
-          const px = cx + look * E.size * 0.45, py = y + (E.type === "bigRound" ? E.size * 0.1 : 0);
+      update(look, blink, lidRest = E.lidRest || 0) {
+        for (const { pupil, lid, lidLine, cx, s, size } of sides) {
+          const diverge = (E.diverge || 0) * s * size; // pupils drifting apart = the dazed look
+          const px = cx + look * size * 0.45 + diverge, py = y + (E.type === "bigRound" ? size * 0.05 : 0);
           if (pupil.tagName === "circle" || pupil.tagName === "ellipse") { pupil.setAttribute("cx", f(px)); pupil.setAttribute("cy", f(py)); }
           else pupil.setAttribute("transform", `translate(${f(px)},${f(py)})`);
-          lid.setAttribute("ry", f(blink * E.size * 1.08));
-          lid.setAttribute("cy", f(y - E.size * 1.08 + blink * E.size * 1.08));
+          const close = Math.max(blink, lidRest);
+          const h = close * (size * 2 + 4);
+          lid.setAttribute("height", f(h));
+          if (close > 0.02) {
+            const ly = y - size + h - 2;
+            const half = Math.sqrt(Math.max(0, size * size - (ly - y) * (ly - y)));
+            lidLine.setAttribute("d", `M${f(cx - half - 2)},${f(ly + 2)} Q${f(cx)},${f(ly + (blink > 0.9 ? 6 : -4))} ${f(cx + half + 2)},${f(ly + 2)}`);
+          } else lidLine.setAttribute("d", "");
         }
       },
     };
@@ -285,12 +327,17 @@
     const B = R.brows, E = R.eyes, r = R.proportions.headR, el = T.el;
     if (B.type === "none") return { update() {} };
     const y = E.y * r - E.size * 1.35;
+    const sizes = E.sizes || [1, 1];
     const br = [-1, 1].map(() => el("path", { fill: "none", stroke: R.line.color, "stroke-width": B.type === "thick" ? B.width * 2 : B.width, "stroke-linecap": "round" }, face));
     return {
       update(m, look) {
         br.forEach((b, i) => {
-          const s = i ? 1 : -1, cx = s * E.gap, lift = m * 16;
-          b.setAttribute("d", `M${f(cx - E.size * 0.8)},${f(y - lift + s * 2)} Q${f(cx)},${f(y - 10 - lift)} ${f(cx + E.size * 0.8)},${f(y - lift - s * 2)}`);
+          const s = i ? 1 : -1, cx = s * E.gap, lift = m * 16, sz = E.size * sizes[i];
+          if (B.type === "worried") {
+            // thin, high on the forehead, inner end raised
+            const yy = E.y * r - sz * 1.55 - lift, inner = cx - s * sz * 0.75, outer = cx + s * sz * 0.85;
+            b.setAttribute("d", `M${f(inner)},${f(yy - 10 - m * 8)} Q${f(cx)},${f(yy - 14)} ${f(outer)},${f(yy + 4)}`);
+          } else b.setAttribute("d", `M${f(cx - sz * 0.8)},${f(y - lift + s * 2)} Q${f(cx)},${f(y - 10 - lift)} ${f(cx + sz * 0.8)},${f(y - lift - s * 2)}`);
         });
       },
     };
@@ -299,6 +346,7 @@
   function drawNose(face, R, spec, stroke) {
     const N = R.nose.type, r = R.proportions.headR, el = T.el, y = R.eyes.y * r + R.eyes.size * 1.05;
     if (N === "bump") el("path", { d: `M${-6},${y - 6} Q${18},${y + 2} ${-4},${y + 16}`, fill: "none", stroke: R.line.color, "stroke-width": Math.max(2.5, R.line.width * 0.8), "stroke-linecap": "round" }, face);
+    else if (N === "c") el("path", { d: `M8,${y - 4} C-12,${y - 2} -12,${y + 18} 8,${y + 18}`, fill: "none", stroke: R.line.color, "stroke-width": Math.max(2.5, R.line.width * 0.85), "stroke-linecap": "round" }, face);
     else if (N === "dot") el("ellipse", { cx: 0, cy: y + 4, rx: 8, ry: 6, fill: R.line.color, opacity: 0.85 }, face);
     else if (N === "triangle") el("path", { d: `M0,${y - 10} L10,${y + 10} L-6,${y + 10} Z`, fill: "rgba(0,0,0,0.15)" }, face);
     else if (N === "hook") el("path", { ...stroke, d: `M-2,${y - 18} Q22,${y + 8} 2,${y + 16}`, fill: spec.skin }, face);
@@ -306,6 +354,30 @@
 
   function drawMouth(node, R, m) {
     const M = R.mouth, r = R.proportions.headR, y = R.eyes.y * r + R.eyes.size * 1.05 + 46, w = (M.width || 46) / 2;
+    if (M.type === "toothy") {
+      // closed: short, slightly sulky line. open: dark mouth, top row of teeth, tongue
+      const g = node.__parts || (node.__parts = (() => {
+        const p = node.parentNode;
+        const teeth = T.el("path", { fill: "#f3efd9", stroke: R.line.color, "stroke-width": Math.max(1.5, R.line.width * 0.5) }, p);
+        const tongue = T.el("path", { fill: "#c95a63" }, p);
+        return { teeth, tongue };
+      })());
+      const wO = w * (0.55 + m * 0.5), open = m * r * 0.55;
+      if (m < 0.05) {
+        node.setAttribute("d", `M${f(-w * 0.45)},${f(y + 4)} Q0,${f(y - 4)} ${f(w * 0.45)},${f(y + 6)}`);
+        node.setAttribute("fill", "none");
+        g.teeth.setAttribute("d", ""); g.tongue.setAttribute("d", "");
+      } else {
+        node.setAttribute("d", `M${f(-wO)},${f(y)} Q0,${f(y - 8)} ${f(wO)},${f(y)} Q${f(wO * 0.9)},${f(y + open)} 0,${f(y + open)} Q${f(-wO * 0.9)},${f(y + open)} ${f(-wO)},${f(y)} Z`);
+        node.setAttribute("fill", "#6b1f2c");
+        const th = Math.min(open * 0.3, 14);
+        let d = "";
+        for (let k = -2; k <= 2; k++) { const x0 = (k * wO) / 3; d += `M${f(x0 - wO / 7)},${f(y - 4)} L${f(x0 + wO / 7)},${f(y - 4)} L${f(x0 + wO / 8)},${f(y - 4 + th)} L${f(x0 - wO / 8)},${f(y - 4 + th)} Z `; }
+        g.teeth.setAttribute("d", d);
+        g.tongue.setAttribute("d", `M${f(-wO * 0.5)},${f(y + open * 0.92)} Q0,${f(y + open * 0.45)} ${f(wO * 0.5)},${f(y + open * 0.92)} Z`);
+      }
+      return;
+    }
     if (M.type === "wide") {
       const open = m * r * 0.5;
       node.setAttribute("d", m < 0.05
@@ -324,9 +396,11 @@
 
   function drawGlasses(face, R, spec) {
     const E = R.eyes, r = R.proportions.headR, el = T.el, y = E.y * r, c = spec.glasses.color || R.line.color;
-    const rr = E.type === "bigRound" ? E.size * 1.18 : E.size * 1.3;
-    for (const s of [-1, 1]) el("circle", { cx: s * E.gap, cy: y, r: rr, fill: "rgba(255,255,255,0.12)", stroke: c, "stroke-width": Math.max(4, R.line.width * 1.1) }, face);
-    el("path", { d: `M${-E.gap + rr},${y - 4} Q0,${y - 14} ${E.gap - rr},${y - 4}`, fill: "none", stroke: c, "stroke-width": Math.max(4, R.line.width) }, face);
+    const sizes = E.sizes || [1, 1];
+    const rrOf = (i) => (E.type === "bigRound" ? E.size * sizes[i] + 4 : E.size * 1.3); // big eyes: the rim IS the eye outline
+    const rr = rrOf(1);
+    for (const [i, s] of [-1, 1].entries()) el("circle", { cx: s * E.gap, cy: y, r: rrOf(i), fill: "none", stroke: c, "stroke-width": Math.max(4.5, R.line.width * 1.4) }, face);
+    el("path", { d: `M${-E.gap + rrOf(0)},${y - 4} Q0,${y - 12} ${E.gap - rr},${y - 4}`, fill: "none", stroke: c, "stroke-width": Math.max(4, R.line.width) }, face);
   }
 
   T.characters = T.characters || {};

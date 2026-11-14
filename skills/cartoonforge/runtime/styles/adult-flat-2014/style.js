@@ -19,10 +19,10 @@
 
   const palette = {
     bg: "#1b2a3a",
-    skyTop: "#14263b", skyMid: "#2c3f5e", skyLow: "#6b5a7a", horizon: "#b98a86",
-    planet: "#d9a35b", planetShade: "#b8823f", ring: "#e8c98a", moon: "#cfd8c4",
-    hills: "#2f3d4f", houseA: "#c9b79a", houseB: "#8fa3a8", roof: "#5b4a4a", trim: "#efe6d2",
-    window: "#ffd98a", windowOff: "#3e4a5a", lawn: "#4f6b45", lawnDark: "#3c5536", sidewalk: "#a39e93", road: "#55565c",
+    skyTop: "#111a33", skyMid: "#262b4d", skyLow: "#463c62", horizon: "#6e5a74",
+    planet: "#d8955a", planetShade: "#b26d3a", ring: "#e8c98a", moon: "#cfd8c4",
+    hills: "#232c45", houseA: "#bdb29a", houseB: "#98a7a1", roof: "#5b4a4a", trim: "#efe6d2",
+    window: "#ffd98a", windowOff: "#3e4a5a", lawn: "#56704a", lawnDark: "#3f5638", sidewalk: "#a8a59a", road: "#55575e",
     ink: "#1c1c1c", white: "#fbfaf6",
     tear: "#38f2d0", tearHot: "#f04fd8", tearCore: "#fdfcff",
   };

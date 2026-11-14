@@ -2,12 +2,15 @@
  * Adult Flat Comedy — CHARACTER RULES: how ANY character is drawn in this style.
  * (The character itself — hair, outfit, colours, props — comes from the user's spec.)
  *
- * The look:
- *   - head wider than tall, sits on a thin neck; body narrow, limbs thin tubes
- *   - eyes: two big white circles almost touching, tiny dot pupils of slightly different sizes
- *   - nose: a single curved bump line; mouth: a wide flat line, opens into a wide shape
- *   - hands: 4 fingers (3 + thumb), simple rounded mitten
- *   - line: thin, even, near-black; NO shading, NO texture — flat fills only
+ * The look (from studying reference frames of the genre):
+ *   - big round head on a thin neck, adult body of normal length, thin tube limbs, slight slouch
+ *   - eyes: big white circles set WIDE apart, slightly different sizes, tiny irregular speck pupils
+ *     drifting outward; heavy lids for tired / unimpressed looks
+ *   - brows: thin, high, worried; nose: small open "C"; ears: "C" curves
+ *   - mouth: small sulky line; open = dark red with a top row of teeth and a tongue
+ *   - hands: 4 long thin separate fingers
+ *   - clothes: simple shapes with a couple of crease lines
+ *   - line: thin, even, near-black; NO shading on characters — flat fills only
  */
 (function (global) {
   "use strict";
@@ -15,16 +18,21 @@
 
   T.styles["adult-flat-2014"].parts.character = {
     rules: {
-      proportions: { headR: 118, headShape: "wideOval", torsoH: 225, torsoW: 168, hipW: 136, legLen: 290, limbW: 19, neckLen: 38, neckW: 32, handR: 22, footL: 66, scale: 1 },
-      line: { width: 4.5, color: "#1c1c1c" },
-      eyes: { type: "bigRound", size: 31, gap: 31, pupilSize: 4.6, y: -0.1 },
-      brows: { type: "line", width: 4 },
-      nose: { type: "bump" },
-      mouth: { type: "wide", width: 72 },
-      hands: { type: "mitten", fingers: 4 },
+      // adult proportions: big round head (~1:4.5 of height), normal-length thin body, slight slouch
+      proportions: { headR: 112, headShape: "round", torsoH: 245, torsoW: 160, hipW: 132, legLen: 330, limbW: 18, neckLen: 30, neckW: 30, handR: 22, footL: 64, scale: 1 },
+      line: { width: 3.6, color: "#161616" },
+      // eyes: big white circles set WIDE apart (not touching), slightly different sizes,
+      // tiny irregular specks for pupils that drift a little outward
+      eyes: { type: "bigRound", size: 36, gap: 46, sizes: [1, 0.93], pupil: "speck", pupilSize: 3.2, diverge: 0.12, y: -0.16, lidRest: 0, bags: false, lineWidth: 3.2 },
+      brows: { type: "worried", width: 3 },      // thin, high on the forehead, inner ends lifted
+      nose: { type: "c" },                       // a small open C curve
+      mouth: { type: "toothy", width: 56 },      // sulky little line; opens dark red with teeth + tongue
+      hands: { type: "fingers", fingers: 4 },    // long thin separate fingers
+      ears: "c",
+      folds: true,                               // a couple of crease lines on clothes
       limbs: { type: "tube" },
       hair: { scale: 1 },
-      shading: { type: "none" },
+      shading: { type: "none" },                 // flat fills on characters
     },
   };
 })(window);

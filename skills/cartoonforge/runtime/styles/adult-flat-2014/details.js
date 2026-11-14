@@ -25,6 +25,9 @@
       const house = (x, w, h, wall, windows) => {
         const n = T.el("g", { transform: `translate(${x},${G - 90})` }, g);
         T.el("rect", { ...line, x: 0, y: -h, width: w, height: h, fill: wall }, n);
+        // offset-tone shading: a darker flat band on one side, no gradient (genre trait)
+        T.el("rect", { x: w * 0.72, y: -h + 2, width: w * 0.28 - 2, height: h - 4, fill: "#000", opacity: 0.12 }, n);
+        for (let k = 0; k < 4; k++) T.el("path", { d: `M${w * 0.1},${-h + 40 + k * 70} l${w * 0.08},0`, stroke: L.color, "stroke-width": L.width * 0.5, opacity: 0.6 }, n); // siding marks
         T.el("path", { ...line, d: `M-26,${-h} L${w / 2},${-h - 150} L${w + 26},${-h} Z`, fill: P.roof }, n);
         // TV antenna
         T.el("path", { ...thin, d: `M${w * 0.7},${-h - 95} l0,-90 M${w * 0.7 - 40},${-h - 165} l80,0 M${w * 0.7 - 28},${-h - 140} l56,0`, fill: "none" }, n);
@@ -71,7 +74,7 @@
       const glowMid = T.el("path", { fill: P.tear }, tear);
       const core = T.el("path", { fill: P.tearCore, ...thin }, tear);
       const debris = Array.from({ length: 9 }, (_, i) => T.el("path", { ...thin, fill: ["#c9b79a", "#7c8b9a", "#d9534f"][i % 3] }, g));
-      const TX = W - 250, TY = G - 560;
+      const TX = W - 210, TY = G - 610;
       const rip = (sc, seed, k) => {
         let d = "";
         const n = 14;
@@ -87,9 +90,9 @@
         update(t) {
           const k = Math.floor(t * 8); // the rip re-jags 8×/s: crackling, not smooth
           const pulse = 1 + Math.sin(t * 3) * 0.05;
-          glowOuter.setAttribute("d", rip(1.35 * pulse, 11, k));
-          glowMid.setAttribute("d", rip(1.0 * pulse, 12, k));
-          core.setAttribute("d", rip(0.55, 13, k));
+          glowOuter.setAttribute("d", rip(0.95 * pulse, 11, k));
+          glowMid.setAttribute("d", rip(0.7 * pulse, 12, k));
+          core.setAttribute("d", rip(0.38, 13, k));
           debris.forEach((dn, i) => {
             const r = T.rng(i * 17 + 3), ph = (t * (0.25 + r() * 0.2) + r()) % 1;
             const a0 = r() * Math.PI * 2, rad = (1 - ph) * (260 + r() * 120);

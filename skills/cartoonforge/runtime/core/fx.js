@@ -260,6 +260,24 @@
       return { update: (t) => { const i = T.drawingIndex(t, dps); g.setAttribute("transform", `translate(${(T.hash(91, i) * amount).toFixed(2)},${(T.hash(97, i) * amount).toFixed(2)})`); } };
     },
 
+    /** Airbrush / spray-paint speckle on a layer (painted backgrounds): sparse light + dark dots. */
+    spray(L, { target, freq = 0.9, amount = 0.35, seed = 21 } = {}) {
+      const fid = id("spray");
+      const f = T.el("filter", { id: fid, x: "0", y: "0", width: "100%", height: "100%" }, L.defs);
+      T.el("feTurbulence", { type: "fractalNoise", baseFrequency: String(freq), numOctaves: "1", seed: String(seed), result: "n" }, f);
+      // keep only the extremes of the noise → isolated specks
+      T.el("feColorMatrix", { in: "n", type: "matrix", values: `0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  ${8 * amount} 0 0 0 ${-5.2 * amount}`, result: "dark" }, f);
+      T.el("feColorMatrix", { in: "n", type: "matrix", values: `0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  ${-8 * amount} 0 0 0 ${2.6 * amount}`, result: "light" }, f);
+      T.el("feComposite", { in: "dark", in2: "SourceAlpha", operator: "in", result: "d2" }, f);
+      T.el("feComposite", { in: "light", in2: "SourceAlpha", operator: "in", result: "l2" }, f);
+      const m = T.el("feMerge", {}, f);
+      T.el("feMergeNode", { in: "SourceGraphic" }, m);
+      T.el("feMergeNode", { in: "d2" }, m);
+      T.el("feMergeNode", { in: "l2" }, m);
+      (target || L.back).setAttribute("filter", `url(#${fid})`);
+      return null;
+    },
+
     /** Background gradient (sky, stage light). stops: [[offset%, colour], …] */
     gradient(L, { stops, vertical = true, radial = false } = {}) {
       const gid = id("bg");
