@@ -1,65 +1,56 @@
 /**
- * Style pack: Adult Flat Comedy · 2010s
- * Genre look of adult animated comedy: flat colours, thin even line, slightly muted
- * "real-world" palette for everyday scenes plus acid sci-fi accents (glowing rifts, alien
- * skies), deadpan limited acting, sitcom staging. A genre, not any specific series.
+ * Style pack: Adult Flat Comedy · 2010s — LAYERED pilot style.
+ *
+ * Files in this folder (each is one part, see core/stage.js):
+ *   style.js       theme (palette, line, type, cards, captions) + fx + loads the parts below
+ *   background.js  alien night sky, planets, far hills
+ *   details.js     suburban street: houses, lamp, fence, mailbox, the dimensional tear
+ *   character.js   HOW characters are drawn: proportions, head, eyes, nose, mouth, hands, line
+ *   foreground.js  curb, grass tufts, litter, sidewalk crack
+ *   motion.js      timing, deadpan acting, talking (mouth chart), blinking, walk, transitions
+ *
+ * Genre look of adult animated comedy (not any specific series): flat colour, thin even line,
+ * muted everyday suburbia vs acid sci-fi accents, deadpan limited acting.
  */
 (function (global) {
   "use strict";
-  const T = global.Toon, S = () => T.shapes;
+  const T = global.Toon;
+  const SLUG = "adult-flat-2014";
 
   const palette = {
-    sky: "#8fb7c9", skyAlt: "#b2d1c0", hills: "#a9b48a", wall: "#e8d9bf", road: "#8b8577", ink: "#2b2a2a", white: "#fbfaf6",
-    portal: "#7cff4f", portalDeep: "#2fae2b", acid: "#c86bff", sun: "#f4d77a",
-  };
-  const motion = { drawingsPerSecond: 12, filmFps: 24, bpm: 110, lineWidth: 4 };
-  const SANS = "'Helvetica Neue', 'Arial', 'DejaVu Sans', sans-serif";
-  const caption = { y: 370, size: 66, font: SANS, weight: "bold", style: "normal", fill: palette.white, stroke: palette.ink, strokeWidth: 12, maxWidth: 900 };
-  const cards = { bg: palette.ink, fg: palette.white, accent: palette.portal, font: SANS, frame: "none", transition: "fade", transitionColor: palette.ink, upper: false };
-
-  /** Characters: thin even line, flat fills, no shading, deadpan. */
-  const skin = {
-    ink: palette.ink, white: palette.white, lineWidth: motion.lineWidth, shading: "none", outline: palette.ink,
-    body: "#6a8caf", head: "#e9cdb4", face: "#e9cdb4", eye: palette.white, glint: palette.ink,
-    limb: palette.ink, limbWidth: 0.5, glove: "#e9cdb4", gloveLine: palette.ink, shoe: palette.ink, shoeShine: null,
-    bow: "#c0504d", mouth: palette.ink, nose: "#d9b39b",
+    bg: "#1b2a3a",
+    skyTop: "#14263b", skyMid: "#2c3f5e", skyLow: "#6b5a7a", horizon: "#b98a86",
+    planet: "#d9a35b", planetShade: "#b8823f", ring: "#e8c98a", moon: "#cfd8c4",
+    hills: "#2f3d4f", houseA: "#c9b79a", houseB: "#8fa3a8", roof: "#5b4a4a", trim: "#efe6d2",
+    window: "#ffd98a", windowOff: "#3e4a5a", lawn: "#4f6b45", lawnDark: "#3c5536", sidewalk: "#a39e93", road: "#55565c",
+    ink: "#1c1c1c", white: "#fbfaf6",
+    tear: "#38f2d0", tearHot: "#f04fd8", tearCore: "#fdfcff",
   };
 
-  function install(svg, { width, height }) {
-    return T.fx.stack(svg, { width, height, background: palette.sky }, (fx, L) => [
-      fx.gradient(L, { stops: [[0, palette.sky], [100, palette.skyAlt]] }),
-      fx.vignette(L, { color: "#000", strength: 0.15, inner: 65 }),
-    ]);
-  }
+  const theme = {
+    slug: SLUG,
+    palette,
+    line: { width: 4.5, color: palette.ink },
+    font: "'Helvetica Neue', Arial, 'DejaVu Sans', sans-serif",
+    motion: { drawingsPerSecond: 12, filmFps: 24, bpm: 110, lineWidth: 4.5 },
+  };
 
-  function scenery(look, { width: W, ground: G }) {
-    const P = palette, g = look.scene;
-    const line = { stroke: P.ink, "stroke-width": 4, "stroke-linejoin": "round" };
-    T.el("circle", { ...line, cx: 180, cy: 520, r: 70, fill: P.sun }, g);
-    T.el("path", { ...line, d: S().ridge(-60, W + 60, G - 330, 120, { seed: 2, peaks: 3, bottom: G }), fill: P.hills }, g);
-    // a plain suburban garage-house (sitcom set) + mailbox
-    const house = T.el("g", { transform: `translate(80,${G})` }, g);
-    T.el("rect", { ...line, x: 0, y: -360, width: 520, height: 360, fill: P.wall }, house);
-    T.el("rect", { ...line, x: 40, y: -230, width: 220, height: 230, fill: "#cdbfa5" }, house);
-    for (let k = 1; k < 5; k++) T.el("line", { x1: 40, y1: -230 + k * 46, x2: 260, y2: -230 + k * 46, stroke: P.ink, "stroke-width": 3 }, house);
-    T.el("rect", { ...line, x: 330, y: -280, width: 120, height: 100, fill: "#9fc6d6" }, house);
-    T.el("path", { ...line, d: "M-30,-360 L260,-470 L550,-360 Z", fill: "#8c6f5a" }, house);
-    T.el("rect", { ...line, x: -60, y: G, width: W + 120, height: 700, fill: P.road }, g);
-    // sci-fi accent: a swirling green rift that opens on the bar
-    const rift = T.el("g", {}, g);
-    const rings = [0, 1, 2, 3].map((i) => T.el("ellipse", { fill: i % 2 ? P.portal : P.portalDeep, stroke: P.ink, "stroke-width": 3 }, rift));
-    const swirl = T.el("path", { fill: "none", stroke: "#d8ffcf", "stroke-width": 6, "stroke-linecap": "round" }, rift);
-    return {
-      update(t, { beat }) {
-        const k = (t % (beat * 8)) / (beat * 8);
-        const open = k < 0.1 ? k / 0.1 : k > 0.6 ? Math.max(0, 1 - (k - 0.6) / 0.1) : 1;
-        rift.setAttribute("opacity", open > 0.01 ? "1" : "0");
-        rings.forEach((rg, i) => { rg.setAttribute("cx", String(W - 230)); rg.setAttribute("cy", String(G - 560)); rg.setAttribute("rx", String((150 - i * 32) * open)); rg.setAttribute("ry", String((230 - i * 48) * open)); });
-        swirl.setAttribute("d", S().spiral(W - 230, G - 560, 120 * open, 2.2, 1, t * 4));
-      },
-    };
-  }
+  const caption = { y: 360, size: 64, font: theme.font, weight: "bold", style: "normal", fill: palette.white, stroke: palette.ink, strokeWidth: 12, maxWidth: 900 };
+  const cards = { bg: palette.ink, fg: palette.white, accent: palette.tear, font: theme.font, frame: "none", transition: "fade", transitionColor: palette.ink, upper: false };
 
+  /** fx: flat look — no grain, almost no vignette, a tiny line wobble on the drawn layers. */
+  const fx = (F, L) => [
+    F.boil(L, { scale: 1.6, freq: 0.03, loop: 3, dps: 12 }),
+    F.vignette(L, { color: "#000", strength: 0.22, inner: 62 }),
+  ];
+
+  const style = { slug: SLUG, theme, palette, caption, cards, fx, parts: {}, motion: theme.motion, skin: { ink: palette.ink, white: palette.white, lineWidth: 4.5 } };
   T.styles = T.styles || {};
-  T.styles["adult-flat-2014"] = { palette, motion, caption, cards, skin, install, scenery };
+  T.styles[SLUG] = style;
+
+  // load the parts (classic scripts, in order, synchronously during parsing)
+  const base = document.currentScript.src.replace(/style\.js(\?.*)?$/, "");
+  for (const part of ["background", "details", "character", "foreground", "motion"]) {
+    document.write(`<script src="${base}${part}.js"><\/script>`);
+  }
 })(window);

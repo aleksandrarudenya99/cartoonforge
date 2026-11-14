@@ -91,5 +91,43 @@
     };
   }
 
-  T.scenes = { titleCard, endCard, bookends, irisPath };
+  /**
+   * Transition between two shots. Returns { update(t) } that covers the frame around `at`.
+   *   type: cut | fade | iris | wipe | tear | swirl
+   *   tear  = a jagged rip sweeps across (sci-fi / adult comedy)
+   *   swirl = a spiral closes and opens (whimsical)
+   */
+  function transition(parent, { width: W, height: H, at, dur = 0.5, type = "fade", color = "#000", glow = null }) {
+    const g = T.el("g", { opacity: 0 }, parent);
+    const cover = T.el("path", { fill: color }, g);
+    const edge = glow ? T.el("path", { fill: "none", stroke: glow, "stroke-width": 18, "stroke-linejoin": "round", opacity: 0.9 }, g) : null;
+    return {
+      update(t) {
+        const k = (t - (at - dur / 2)) / dur; // 0 → 1 across the transition
+        if (type === "cut" || k <= 0 || k >= 1) { g.setAttribute("opacity", "0"); return; }
+        g.setAttribute("opacity", "1");
+        const cl = k < 0.5 ? k * 2 : (1 - k) * 2; // 0 → 1 → 0 coverage
+        if (type === "fade") { cover.setAttribute("d", `M-60,-60 H${W + 60} V${H + 60} H-60 Z`); g.setAttribute("opacity", cl.toFixed(3)); }
+        else if (type === "iris") cover.setAttribute("d", irisPath(W, H, W / 2, H / 2, (1 - cl) * 1300));
+        else if (type === "wipe") { const x = k < 0.5 ? -60 : -60 + (k - 0.5) * 2 * (W + 120); const w = k < 0.5 ? cl * (W + 120) : W + 60 - x; cover.setAttribute("d", `M${x},-60 h${w} V${H + 60} H${x} Z`); }
+        else if (type === "tear") {
+          // jagged vertical rip; seeded so the same jag shows for the whole transition
+          const front = k < 0.5 ? -60 + cl * (W + 160) : W + 100;
+          const back = k < 0.5 ? -60 : -60 + (k - 0.5) * 2 * (W + 160);
+          let d = `M${back},-60 L${front},-60`;
+          const pts = [];
+          for (let y = -60, i = 0; y <= H + 60; y += 90, i++) pts.push([front + T.hash(77, i) * 50, y]);
+          for (const [x, y] of pts) d += ` L${x.toFixed(0)},${y}`;
+          d += ` L${back},${H + 60} Z`;
+          cover.setAttribute("d", d);
+          if (edge) edge.setAttribute("d", "M" + pts.map(([x, y]) => `${x.toFixed(0)},${y}`).join(" L"));
+        } else if (type === "swirl") {
+          cover.setAttribute("d", irisPath(W, H, W / 2, H / 2, (1 - cl) * 1300));
+          if (edge) edge.setAttribute("d", T.shapes.spiral(W / 2, H / 2, (1 - cl) * 900 + 40, 1.5, 1, t * 8));
+        }
+      },
+    };
+  }
+
+  T.scenes = { titleCard, endCard, bookends, irisPath, transition };
 })(window);

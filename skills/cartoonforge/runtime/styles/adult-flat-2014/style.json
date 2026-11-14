@@ -25,5 +25,13 @@
       4.3,
       3.4
     ]
-  }
+  },
+  "layered": true,
+  "parts": [
+    "background",
+    "details",
+    "character",
+    "foreground",
+    "motion"
+  ]
 }

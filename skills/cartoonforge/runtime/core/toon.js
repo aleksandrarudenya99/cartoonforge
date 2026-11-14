@@ -126,7 +126,7 @@
     // measure real word widths with the actual font (same machine + font → same layout every frame)
     const probe = el("text", { "font-family": o.font, "font-size": o.size, "font-weight": o.weight, "font-style": o.style, opacity: 0 }, g);
     const widthOf = (s) => { probe.textContent = s; return probe.getComputedTextLength(); };
-    const space = (widthOf("a a") - widthOf("aa") || o.size * 0.28) + o.size * 0.1;
+    const space = Math.max(widthOf("a a") - widthOf("aa"), o.size * 0.3) + o.size * 0.08;
     const built = cues.map((cue) => {
       const words = cue.text.split(/\s+/).filter(Boolean);
       const total = words.reduce((s, w) => s + w.length + 1, 0);
@@ -172,7 +172,7 @@
         if (!on) continue;
         for (const { n, at, x, y } of nodes) {
           const k = clamp((t - at) / o.pop);
-          const s = k <= 0 ? 0 : ease.outBack(k, 2.2);
+          const s = k <= 0 ? 0 : ease.outBack(k, 1.2);
           n.setAttribute("opacity", k > 0 ? "1" : "0");
           n.setAttribute("transform", `translate(${x.toFixed(1)},${y.toFixed(1)}) scale(${s.toFixed(3)}) translate(${(-x).toFixed(1)},${(-y).toFixed(1)})`);
         }

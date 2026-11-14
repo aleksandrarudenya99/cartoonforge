@@ -4,6 +4,16 @@ Flat, thin-lined, muted everyday sitcom sets with acid sci-fi rifts.
 
 **Lineage:** Genre look of 2010s adult animated comedy (not any specific series).
 
+## Files (layered pilot style)
+| File | Part |
+|---|---|
+| `style.js` | theme: palette, line, captions, cards, fx; loads the parts |
+| `background.js` | banded alien night sky, ringed planet, second moon, far hills |
+| `details.js` | suburban street: houses, antenna, power lines, lamp cone, mailbox, bin, hydrant, the crackling tear + debris |
+| `character.js` | how any character is drawn: wide head, thin neck and tube limbs, big touching eyes with dot pupils, bump nose, wide mouth, 4-finger hands, flat fills |
+| `foreground.js` | curb, sidewalk crack, grass tufts, crushed can |
+| `motion.js` | deadpan timing, 4-shape jaw-flap talking at 8 changes/s, bored double blinks, slumped walk, cuts + tear transition |
+
 ## What defines the look
 - Thin even outlines, flat muted fills
 - Plain sitcom sets: suburban house, road
